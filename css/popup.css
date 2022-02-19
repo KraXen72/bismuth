@@ -1,0 +1,28 @@
+html {
+    font-size: 16px;
+}
+
+body {
+    width: 150px;
+    min-height: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn {
+    cursor: pointer;
+    display: block;
+    font-size: 1rem;
+    color: #000000;
+    padding: 0.5rem 1rem;
+    background-color: #dfe6e9;
+    border: none;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.btn:hover {
+    background-color: #b2bec3;
+}
