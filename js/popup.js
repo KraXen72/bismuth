@@ -88,8 +88,6 @@ const display = document.getElementById("display")
 const inpHex = document.getElementById("c_hex")
 
 inpHex.onchange = (e) => { colorPicker.color.set(e.target.value) }
-let isInputFocused = false
-
 
 registerColorPickerUpdater(["c_rgb_r", "c_rgb_g", "c_rgb_b", "c_rgb_a"],
 	['r', 'g', 'b', 'a'], "rgba")
@@ -135,7 +133,6 @@ function registerColorPickerUpdater(idArr, keyArr, channel) {
 		
 		input.onchange = (e) => {
 			//console.log(e.target, e.target.value, keyArr[i])
-			isInputFocused = true
 			colorPicker.color.setChannel(channel, keyArr[i], e.target.value)
 		}
 	}
