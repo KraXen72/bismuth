@@ -73,7 +73,7 @@ function alphaAwareCopyCol(type) {
 			toCopy = a ? c.hslaString : c.hslString
 			break;
 		default:
-			throw new Error(`unknown type ${type}. supported: 'hex', 'rgb' and 'hsl'`)
+			throw new Error(`Unknown type ${type}. supported: 'hex', 'rgb' and 'hsl'`)
 			break;
 	}
 	navigator.clipboard.writeText(toCopy)
