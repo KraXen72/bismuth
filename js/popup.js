@@ -121,10 +121,10 @@ colorPicker.on("input:start", () => {
 
 /**
  * register colorPicker.color updater
- * that updates colorPicker.color magic properties
+ * that updates colorPicker.color with setChannel
  * whenever one of the sharedClass inputs changes
  * @param {string[]} idArr array of id's to input elements
- * @param {string[]} keyArr keys / array keys of colorPicker.color.setChannel() (in order of inputs) to be updated
+ * @param {string[]} keyArr keys / array keys of the channel (in order of inputs) to be updated
  * @param {string} channel "hsla", "rgba" etc.
  */
 function registerColorPickerUpdater(idArr, keyArr, channel) {
