@@ -2,9 +2,59 @@
 <html>
     <head>
         <link rel="stylesheet" href="css/popup.css" />
+        <script src="js/iro.js"></script>
     </head>
     <body>
-        <button id="get-color-btn" class="btn">Get Color</button>
-        <script src="js/popup.js"></script>
+        <!-- all svgs are from material icons and modified to 18px and fill of #a3a5aa -->
+        <div id="picker"></div>
+        <div id="values">
+			<span class="span-hex valspan">
+				<span id="t_hex" class="val-label">hex:&nbsp;</span>
+				<input type="text" class="code" id="c_hex">
+			</span>
+			<span class="span-rgb valspan" spellcheck="false">
+				<span id="t_rgb" class="val-label">rgba(</span>
+				<input type="text" class="code inp_rgb" id="c_rgb_r" spellcheck="false">,
+				<input type="text" class="code inp_rgb" id="c_rgb_g" spellcheck="false">,
+				<input type="text" class="code inp_rgb" id="c_rgb_b" spellcheck="false">
+				<span id="c_rgb_a_hold">
+					,<input type="text" class="code" id="c_rgb_a" spellcheck="false">)
+				</span>
+				<span id="c_rgb_end" class="hide">)</span>
+				<input type="text" class="code inp_rgb hide" id="c_rgb_full" spellcheck="false">
+			</span>
+			<span class="span-hsl valspan">
+				<span id="t_hsl" class="val-label">hsla(</span>
+				<input type="text" class="code inp_hsl" id="c_hsl_h" spellcheck="false">,
+				<input type="text" class="code inp_hsl" id="c_hsl_s" spellcheck="false">,
+				<input type="text" class="code inp_hsl" id="c_hsl_l" spellcheck="false">
+				<span id="c_hsl_a_hold">
+					,<input type="text" class="code" id="c_hsl_a" spellcheck="false">)
+				</span>
+				<span id="c_hsl_end" id="hide">)</span>
+				<input type="text" class="code inp_rgb hide" id="c_hsl_full" spellcheck="false">
+			</span>
+			<button class="copy clean btn" id="copy_hex">
+				<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="24px" fill="#a3a5aa"><path d="M0 0h24v24H0z" fill="none"/><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+			</button>
+			<button class="copy clean btn" id="copy_rgb">
+				<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="24px" fill="#a3a5aa"><path d="M0 0h24v24H0z" fill="none"/><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+			</button>
+			<button class="copy clean btn" id="copy_hsl">
+				<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="24px" fill="#a3a5aa"><path d="M0 0h24v24H0z" fill="none"/><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+			</button>
+			<div id="display-hold">
+				<span id="display"></span>
+			</div>
+		</div>
+
+		<div id="dropper-icon" hidden>
+			<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px" fill="#a3a5aa"><path d="M0 0h24v24H0z" fill="none"/><path d="M20.71 5.63l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-3.12 3.12-1.93-1.91-1.41 1.41 1.42 1.42L3 16.25V21h4.75l8.92-8.92 1.42 1.42 1.41-1.41-1.92-1.92 3.12-3.12c.4-.4.4-1.03.01-1.42zM6.92 19L5 17.08l8.06-8.06 1.92 1.92L6.92 19z"/></svg>
+		</div>
+		<div id="disabled-icon" hidden>
+			<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="24px" fill="#a3a5aa"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9L16.9 18.31C15.55 19.37 13.85 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z"/></svg>
+		</div>
+
+		<script src="js/popup.js" defer></script>
     </body>
 </html>
