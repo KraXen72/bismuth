@@ -9,6 +9,7 @@ html,
 	--test: #545557;
 
 	--slider-w: 24px;
+	--valgap: 0.5rem;
 }
 .hide { display: none !important; }
 
@@ -83,7 +84,6 @@ body {
 
 /* values */
 #values {
-	--valgap: 0.5rem;
 	--valc: 3;
 	margin-top: 16px;
 	font-family: "Consolas", monospace;
@@ -100,6 +100,10 @@ body {
 	row-gap: var(--valgap);
 	column-gap: var(--valgap)
 }
+#values.alpha-shown {
+	column-gap: calc(var(--valgap)/2);
+}
+
 .valspan {
 	grid-column: 1;
 	display: flex;

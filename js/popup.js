@@ -57,11 +57,35 @@ document.querySelector("#picker .IroColorPicker").appendChild(
 	Object.assign(document.createElement("button"), buttonProps)
 )
 
-const getColorBtn = document.getElementById('get-color-btn');
+function alphaAwareCopyCol(type) {
+	const c = colorPicker.color
+	const a = c.alpha < 1
+	let toCopy = ""
+
+	switch (type) {
+		case "hex":
+			toCopy = a ? c.hex8String : c.hexString
+			break;
+		case "rgb":
+			toCopy = a ? c.rgbaString : c.rgbString
+			break;
+		case "hsl":
+			toCopy = a ? c.hslaString : c.hslString
+			break;
+		default:
+			throw new Error(`unknown type ${type}. supported: 'hex', 'rgb' and 'hsl'`)
+			break;
+	}
+	navigator.clipboard.writeText(toCopy)
+}
+
+// copying of colors
+document.getElementById("copy_hex").onclick = () => alphaAwareCopyCol('hex')
+document.getElementById("copy_rgb").onclick = () => alphaAwareCopyCol('rgb')
+document.getElementById("copy_hsl").onclick = () => alphaAwareCopyCol('hsl')
 
 let compositeRGBA;
 let compositeHSLA;
-
 
 const display = document.getElementById("display")
 const inpHex = document.getElementById("c_hex")
@@ -98,8 +122,8 @@ colorPicker.on(["color:init", "color:change"], function (color) {
  * @param {String} functionName the name of color function 'rgba/hsla'
  * @param {String} byproductVar the variable to update when one of these changes
  */
-function registerColorPickerUpdater(sharedClass, functionName, mainTarget, byproductVar) {
-	
+function registerColorPickerUpdater(sharedClass, functionName, byproductVar) {
+	//TODO implement
 }
 
 /**
@@ -123,11 +147,12 @@ function updateInputElements(idArr, valueArr, showAlpha, pickerPrefix) {
 		document.getElementById(`t_${pickerPrefix}`).textContent = `${pickerPrefix}a(`
 		document.getElementById(`c_${pickerPrefix}_a_hold`).classList.remove("hide")
 		document.getElementById(`c_${pickerPrefix}_end`).classList.add("hide")
+		document.getElementById("values").classList.add("alpha-shown")
 	} else {
-		document.getElementById(`t_${pickerPrefix}`)
-			.textContent = `${pickerPrefix}(`
+		document.getElementById(`t_${pickerPrefix}`).textContent = `${pickerPrefix}(`
 		document.getElementById(`c_${pickerPrefix}_a_hold`).classList.add("hide")
 		document.getElementById(`c_${pickerPrefix}_end`).classList.remove("hide")
+		document.getElementById("values").classList.remove("alpha-shown")
 	}
 }
 
