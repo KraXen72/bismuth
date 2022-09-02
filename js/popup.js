@@ -84,22 +84,24 @@ document.getElementById("copy_hex").onclick = () => alphaAwareCopyCol('hex')
 document.getElementById("copy_rgb").onclick = () => alphaAwareCopyCol('rgb')
 document.getElementById("copy_hsl").onclick = () => alphaAwareCopyCol('hsl')
 
-let compositeRGBA;
-let compositeHSLA;
-
 const display = document.getElementById("display")
 const inpHex = document.getElementById("c_hex")
 
-inpHex.onchange = (inp) => (e) => { colorPicker.color.set(e.target.value) }
-// inpRgb.onchange = (inp) => colorFromInput(inp)
-// inpHsl.onchange = (inp) => colorFromInput(inp)
+inpHex.onchange = (e) => { colorPicker.color.set(e.target.value) }
+let isInputFocused = false
 
+
+registerColorPickerUpdater(["c_rgb_r", "c_rgb_g", "c_rgb_b", "c_rgb_a"],
+	['r', 'g', 'b', 'a'], "rgba")
+	
+registerColorPickerUpdater(["c_hsl_h", "c_hsl_s", "c_hsl_l", "c_hsl_a"],
+	['h', 's', 'l', 'a'], "hsla",)
 
 colorPicker.on(["color:init", "color:change"], function (color) {
 	// Show the current color in different formats
 	// Using the selected color: https://iro.js.org/guide.html#selected-color-api
 	const a = color.alpha < 1
-	//updateInputElements("")
+
 	inpHex.value = a ? color.hex8String : color.hexString
 	// inpRgb.value = a ? color.rgbaString : color.rgbString
 	// inpHsl.value = a ? color.hslaString : color.hslString
@@ -111,19 +113,32 @@ colorPicker.on(["color:init", "color:change"], function (color) {
 
 	display.style.background = a ? color.hex8String : color.hexString
 });
+colorPicker.on("input:start", () => {
+	if ("activeElement" in document) document.activeElement.blur();
+})
 
 // 2-way-binding for rgba and hsla
 
 /**
  * register colorPicker.color updater
- * that updates color with 'color function string' (rgba/hsl) using .set() method
+ * that updates colorPicker.color magic properties
  * whenever one of the sharedClass inputs changes
- * @param {String} sharedClass class shared among small inputs
- * @param {String} functionName the name of color function 'rgba/hsla'
- * @param {String} byproductVar the variable to update when one of these changes
+ * @param {string[]} idArr array of id's to input elements
+ * @param {string[]} keyArr keys / array keys of colorPicker.color.setChannel() (in order of inputs) to be updated
+ * @param {string} channel "hsla", "rgba" etc.
  */
-function registerColorPickerUpdater(sharedClass, functionName, byproductVar) {
-	//TODO implement
+function registerColorPickerUpdater(idArr, keyArr, channel) {
+	const inputs = idArr.map(id => document.getElementById(id))
+
+	for (let i = 0; i < inputs.length; i++) {
+		const input = inputs[i];
+		
+		input.onchange = (e) => {
+			//console.log(e.target, e.target.value, keyArr[i])
+			isInputFocused = true
+			colorPicker.color.setChannel(channel, keyArr[i], e.target.value)
+		}
+	}
 }
 
 /**
