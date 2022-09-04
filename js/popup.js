@@ -29,7 +29,7 @@ const colorPicker = new iro.ColorPicker('#picker', {
 	margin: 0,
 	boxHeight: iroSize,
 	handleRadius: 6,
-	color: startColors[randomNumberBetween(0, 19)],
+	color: startColors[randomNumberBetween(0, 19)] /*"#a57562"*/,
 	layout: [
 		{ component: iro.ui.Slider, options: { sliderType: 'alpha', ...componentOpts } },
 		{ component: iro.ui.Slider, options: { sliderType: 'hue', ...componentOpts } },
@@ -114,6 +114,44 @@ colorPicker.on(["color:init", "color:change"], function (color) {
 colorPicker.on("input:start", () => {
 	if ("activeElement" in document) document.activeElement.blur();
 })
+
+//TODO only calculate on demand
+//TODO collapsed by default
+//other colors
+// colorPicker.on(["color:init", "color:change"], (color) => {
+// 	const hsla = color.hsla
+
+// 	document.documentElement.style.setProperty('--h', `${hsla.h}deg`);
+// 	document.documentElement.style.setProperty('--s', `${hsla.s}%`);
+// 	document.documentElement.style.setProperty('--l', `${hsla.l}%`);
+// 	document.documentElement.style.setProperty('--a', `${hsla.a}`);
+
+// 	console.log(hsla)
+
+// 	fillColorSpans()
+// })
+
+function fillColorSpans() {
+	console.log("this ran")
+	const spans = [...document.querySelectorAll(`#color-table .mini-display span[class^="c"]`)]
+
+	spans.forEach(span => {
+		const rgba = window.getComputedStyle(span).getPropertyValue("background-color")
+		const hex = RGBAToHexA(rgba)
+		span.textContent = hex
+	})
+}
+
+function RGBAToHexA(rgba, forceRemoveAlpha = false) {
+	return "#" + rgba.replace(/^rgba?\(|\s+|\)$/g, '') // Get's rgba / rgb string values
+	  .split(',') // splits them at ","
+	  .filter((string, index) => !forceRemoveAlpha || index !== 3)
+	  .map(string => parseFloat(string)) // Converts them to numbers
+	  .map((number, index) => index === 3 ? Math.round(number * 255) : number) // Converts alpha to 255 number
+	  .map(number => number.toString(16)) // Converts numbers to hex
+	  .map(string => string.length === 1 ? "0" + string : string) // Adds 0 when length of one number is 1
+	  .join("") // Puts the array to togehter to a string
+  }
 
 // 2-way-binding for rgba and hsla
 

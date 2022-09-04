@@ -10,6 +10,28 @@ html,
 
 	--slider-w: 24px;
 	--valgap: 0.5rem;
+
+	--h: 17deg;
+	--s: 27%;
+	--l: 52%;
+	--a: 1;
+
+	/* thanks coolors.co for shifting by 40 and not letting anyone know */
+	--analog-shift: 40deg;
+
+	--m-hsl: hsla(var(--h), var(--s), var(--l), var(--a));
+
+	--complement: hsla(calc(var(--h) + 180deg), var(--s), var(--l), var(--a));
+
+	--analog1: hsla(calc(var(--h) + var(--analog-shift)), var(--s), var(--l), var(--a));
+	--analog2: hsla(calc(var(--h) - var(--analog-shift)), var(--s), var(--l), var(--a));
+
+	--triadic1: hsla(calc(var(--h) + 120deg), var(--s), var(--l), var(--a));
+	--triadic2: hsla(calc(var(--h) - 120deg), var(--s), var(--l), var(--a));
+
+	--tetradic1: hsla(calc(var(--h) + 90deg), var(--s), var(--l), var(--a));
+	--tetradic2: hsla(calc(var(--h) + 180deg), var(--s), var(--l), var(--a));
+	--tetradic3: hsla(calc(var(--h) - 90deg), var(--s), var(--l), var(--a));
 }
 .hide { display: none !important; }
 
@@ -162,6 +184,67 @@ input.code {
 .valspan #c_rgb_a_hold, .valspan c_hsl_a_hold {
 	width: max-content;
 }
+
+/* color-table */
+#color-table {
+	display: grid;
+
+	grid-template-rows: repeat(4, min-content);
+	grid-template-columns: repeat(2, 1fr);
+	grid-template-areas: 
+	"analog-text complement-text"
+	"analog complement"
+	"triadic-text tetradic-text"
+	"triadic tetradic"; 
+
+	margin-top: 8px;
+	font-family: "Consolas", monospace;
+	line-height: 150%;
+
+	row-gap: calc(var(--valgap) / 2);
+	column-gap: var(--valgap)
+}
+#analog-t { grid-area: analog-text }
+#complement-t { grid-area: complement-text }
+#triadic-t { grid-area: triadic-text }
+#tetradic-t { grid-area: tetradic-text }
+
+.mini-display {
+	height: 26.19px;
+
+	display: flex;
+	flex-direction: row;
+	border-radius: 5px;
+	overflow: hidden;
+	border: 1px solid var(--border-color);
+}
+.mini-display span[class^="c"] {
+	max-width: 100%;
+	flex-basis: 100%;
+	transition: flex-basis 0.2s, color 0.2s;
+	color: transparent;
+	font-size: 0;
+}
+.mini-display span[class^="c"]:hover {
+	flex-basis: 200%;
+	color: white;
+	text-shadow: 2px 2px 2px #000000;
+
+	text-align: center;
+	font-size: 14px;
+}
+
+#analog .c1 { background-color: var(--analog1) }
+#analog .c2 { background-color: var(--analog2) }
+
+#complement .c1 { background-color: var(--complement) }
+
+#triadic .c1 { background-color: var(--triadic1) }
+#triadic .c2 { background-color: var(--triadic2) }
+
+#tetradic .c1 { background-color: var(--tetradic1) }
+#tetradic .c2 { background-color: var(--tetradic2) }
+#tetradic .c3 { background-color: var(--tetradic3) }
 
 .clean {
 	cursor: pointer;
