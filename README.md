@@ -18,6 +18,7 @@
 	- [ ] shows a message "copied to clipboard" when span is clicked
 	- [ ] small preview window in the toolbar for the hovered color just 4 reasurance
 - [ ] all spans should copy onclick
+- [ ] handle semitransparent colors in color table
 - [ ] smart quickpaste
 - [x] re-hides on new color
 - [ ] custom eyeDropper implementation (Don't rely on chrome eyeDropper API)
