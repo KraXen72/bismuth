@@ -42,7 +42,33 @@ function RGBAToHexA(rgba, forceRemoveAlpha = false) {
 	  .map(number => number.toString(16)) // Converts numbers to hex
 	  .map(string => string.length === 1 ? "0" + string : string) // Adds 0 when length of one number is 1
 	  .join("") // Puts the array to togehter to a string
-  }
+}
+
+// color table utils
+function generateColorTable() {
+	const hsla = colorPicker.color.hsla
+
+	document.documentElement.style.setProperty('--h', `${hsla.h}deg`);
+	document.documentElement.style.setProperty('--s', `${hsla.s}%`);
+	document.documentElement.style.setProperty('--l', `${hsla.l}%`);
+	document.documentElement.style.setProperty('--a', `${hsla.a}`);
+
+	console.log(hsla)
+
+	document.getElementById("color-table").classList.remove("hide")
+	document.getElementById("generate-wrapper").classList.add("hide")
+}
+function hideColorTable() {
+	document.getElementById("color-table").classList.add("hide")
+	document.getElementById("generate-wrapper").classList.remove("hide")
+}
+
+// fill up icons to elements
+[...document.querySelectorAll(`#color-table .mini-display span[class^="c"]`)]
+	.forEach(span => {
+		const copyIcon = document.querySelector("#copy-icon svg").cloneNode(true)
+		span.appendChild(copyIcon)
+	})
 
 // some pretty colors i picked from coolors.co + my own favs
 const startColors = [
@@ -99,7 +125,7 @@ document.getElementById("copy_hsl").onclick = () => alphaAwareCopyCol('hsl')
 const display = document.getElementById("display")
 const inpHex = document.getElementById("c_hex")
 
-inpHex.onchange = (e) => { colorPicker.color.set(e.target.value) }
+inpHex.onchange = (e) => { colorPicker.color.set(e.target.value); generateColorTable() }
 
 registerColorPickerUpdater(["c_rgb_r", "c_rgb_g", "c_rgb_b", "c_rgb_a"],
 	['r', 'g', 'b', 'a'], "rgba")
@@ -127,32 +153,20 @@ colorPicker.on("input:start", () => {
 	if ("activeElement" in document) document.activeElement.blur();
 })
 
-//TODO only calculate on demand
-//TODO collapsed by default
 //other colors
-colorPicker.on(["color:init", "color:change"], (color) => {
-	const hsla = color.hsla
+document.getElementById("show-color-table").onclick = generateColorTable
+colorPicker.on(["color:init", "color:change"], (color) => hideColorTable())
 
-	document.documentElement.style.setProperty('--h', `${hsla.h}deg`);
-	document.documentElement.style.setProperty('--s', `${hsla.s}%`);
-	document.documentElement.style.setProperty('--l', `${hsla.l}%`);
-	document.documentElement.style.setProperty('--a', `${hsla.a}`);
+// function fillColorSpans() {
+// 	console.log("this ran")
+// 	const spans = [...document.querySelectorAll(`#color-table .mini-display span[class^="c"]`)]
 
-	console.log(hsla)
-
-	fillColorSpans()
-})
-
-function fillColorSpans() {
-	console.log("this ran")
-	const spans = [...document.querySelectorAll(`#color-table .mini-display span[class^="c"]`)]
-
-	spans.forEach(span => {
-		const rgba = window.getComputedStyle(span).getPropertyValue("background-color")
-		const hex = RGBAToHexA(rgba)
-		span.textContent = hex
-	})
-}
+// 	spans.forEach(span => {
+// 		const rgba = window.getComputedStyle(span).getPropertyValue("background-color")
+// 		const hex = RGBAToHexA(rgba)
+// 		span.textContent = hex
+// 	})
+// }
 
 // 2-way-binding for rgba and hsla
 
@@ -173,6 +187,7 @@ function registerColorPickerUpdater(idArr, keyArr, channel) {
 		input.onchange = (e) => {
 			//console.log(e.target, e.target.value, keyArr[i])
 			colorPicker.color.setChannel(channel, keyArr[i], e.target.value)
+			generateColorTable()
 		}
 	}
 }

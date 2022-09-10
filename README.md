@@ -12,8 +12,12 @@
 - 2 way binding to inputs for hex, rgb(a) and hsl(a)
   
 ## planned
-- [ ] analogous, complementary, triadic and tetradic colors
-- [ ] hidden behind a collapsible with a "Calculate" button
+- [x] analogous, complementary, triadic and tetradic colors
+- [x] hidden behind a collapsible with a "Calculate" button
+- [ ] toolbar that updates on mouseenter & hides on mouseleave for color spans
+	- [ ] shows a message "copied to clipboard" when span is clicked
+	- [ ] small preview window in the toolbar for the hovered color just 4 reasurance
+- [ ] all spans should copy onclick
 - [ ] re-hides on new color
 - [ ] custom eyeDropper implementation (Don't rely on chrome eyeDropper API)
 - [ ] publish chrome extension

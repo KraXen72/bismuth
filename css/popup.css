@@ -185,6 +185,13 @@ input.code {
 	width: max-content;
 }
 
+#generate-wrapper {
+	margin-top: 16px;
+}
+#generate-wrapper button.clean {
+	height: var(--slider-w);
+}
+
 /* color-table */
 #color-table {
 	display: grid;
@@ -225,16 +232,18 @@ input.code {
 	color: transparent;
 	cursor: pointer;
 
-	font-size: 0;
-
+	font-size: 14px;
+	text-align: center;
+}
+.mini-display span[class^="c"] svg {
+	position: relative;
+	top: 40%;
+	transform: translateY(-50%); 
 }
 .mini-display span[class^="c"]:hover {
 	flex-basis: 200%;
 	color: white;
 	text-shadow: 2px 2px 2px #000000;
-
-	text-align: center;
-	font-size: 14px;
 }
 
 #analog .c1 { background-color: var(--analog1) }
