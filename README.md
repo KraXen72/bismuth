@@ -18,7 +18,8 @@
 	- [ ] shows a message "copied to clipboard" when span is clicked
 	- [ ] small preview window in the toolbar for the hovered color just 4 reasurance
 - [ ] all spans should copy onclick
-- [ ] re-hides on new color
+- [ ] smart quickpaste
+- [x] re-hides on new color
 - [ ] custom eyeDropper implementation (Don't rely on chrome eyeDropper API)
 - [ ] publish chrome extension
 - [ ] publish firefox extension
