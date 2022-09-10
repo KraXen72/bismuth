@@ -6,13 +6,47 @@ const componentOpts = {
 	width: iroSize,
 }
 
+// utils. TODO move to different file
 function randomNumberBetween(min, max) {
 	return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
+function alphaAwareCopyCol(type) {
+	const c = colorPicker.color
+	const a = c.alpha < 1
+	let toCopy = ""
+
+	switch (type) {
+		case "hex":
+			toCopy = a ? c.hex8String : c.hexString
+			break;
+		case "rgb":
+			toCopy = a ? c.rgbaString : c.rgbString
+			break;
+		case "hsl":
+			toCopy = a ? c.hslaString : c.hslString
+			break;
+		default:
+			throw new Error(`Unknown type ${type}. supported: 'hex', 'rgb' and 'hsl'`)
+			break;
+	}
+	navigator.clipboard.writeText(toCopy)
+}
+
+function RGBAToHexA(rgba, forceRemoveAlpha = false) {
+	return "#" + rgba.replace(/^rgba?\(|\s+|\)$/g, '') // Get's rgba / rgb string values
+	  .split(',') // splits them at ","
+	  .filter((string, index) => !forceRemoveAlpha || index !== 3)
+	  .map(string => parseFloat(string)) // Converts them to numbers
+	  .map((number, index) => index === 3 ? Math.round(number * 255) : number) // Converts alpha to 255 number
+	  .map(number => number.toString(16)) // Converts numbers to hex
+	  .map(string => string.length === 1 ? "0" + string : string) // Adds 0 when length of one number is 1
+	  .join("") // Puts the array to togehter to a string
+  }
+
 // some pretty colors i picked from coolors.co + my own favs
 const startColors = [
-	"#22223b", "#4a4e69", "#432818", "#c9ada7", "#ff9e00",
+	"#22223b", "#4a4e69", "#c9ada7", "#ff9e00", "#ffd04e",
 	"#723d46", "#84a98c", "#52796f", "#354f52", "#2f3e46",
 	"#f9dbbd", "#ffa5ab", "#da627d", "#a53860", "#a57562",
 	"#c11c66", "#ffcb00", "#48c7d9", "#2fc58f", "#6d5dca"
@@ -57,28 +91,6 @@ document.querySelector("#picker .IroColorPicker").appendChild(
 	Object.assign(document.createElement("button"), buttonProps)
 )
 
-function alphaAwareCopyCol(type) {
-	const c = colorPicker.color
-	const a = c.alpha < 1
-	let toCopy = ""
-
-	switch (type) {
-		case "hex":
-			toCopy = a ? c.hex8String : c.hexString
-			break;
-		case "rgb":
-			toCopy = a ? c.rgbaString : c.rgbString
-			break;
-		case "hsl":
-			toCopy = a ? c.hslaString : c.hslString
-			break;
-		default:
-			throw new Error(`Unknown type ${type}. supported: 'hex', 'rgb' and 'hsl'`)
-			break;
-	}
-	navigator.clipboard.writeText(toCopy)
-}
-
 // copying of colors
 document.getElementById("copy_hex").onclick = () => alphaAwareCopyCol('hex')
 document.getElementById("copy_rgb").onclick = () => alphaAwareCopyCol('rgb')
@@ -118,18 +130,18 @@ colorPicker.on("input:start", () => {
 //TODO only calculate on demand
 //TODO collapsed by default
 //other colors
-// colorPicker.on(["color:init", "color:change"], (color) => {
-// 	const hsla = color.hsla
+colorPicker.on(["color:init", "color:change"], (color) => {
+	const hsla = color.hsla
 
-// 	document.documentElement.style.setProperty('--h', `${hsla.h}deg`);
-// 	document.documentElement.style.setProperty('--s', `${hsla.s}%`);
-// 	document.documentElement.style.setProperty('--l', `${hsla.l}%`);
-// 	document.documentElement.style.setProperty('--a', `${hsla.a}`);
+	document.documentElement.style.setProperty('--h', `${hsla.h}deg`);
+	document.documentElement.style.setProperty('--s', `${hsla.s}%`);
+	document.documentElement.style.setProperty('--l', `${hsla.l}%`);
+	document.documentElement.style.setProperty('--a', `${hsla.a}`);
 
-// 	console.log(hsla)
+	console.log(hsla)
 
-// 	fillColorSpans()
-// })
+	fillColorSpans()
+})
 
 function fillColorSpans() {
 	console.log("this ran")
@@ -141,17 +153,6 @@ function fillColorSpans() {
 		span.textContent = hex
 	})
 }
-
-function RGBAToHexA(rgba, forceRemoveAlpha = false) {
-	return "#" + rgba.replace(/^rgba?\(|\s+|\)$/g, '') // Get's rgba / rgb string values
-	  .split(',') // splits them at ","
-	  .filter((string, index) => !forceRemoveAlpha || index !== 3)
-	  .map(string => parseFloat(string)) // Converts them to numbers
-	  .map((number, index) => index === 3 ? Math.round(number * 255) : number) // Converts alpha to 255 number
-	  .map(number => number.toString(16)) // Converts numbers to hex
-	  .map(string => string.length === 1 ? "0" + string : string) // Adds 0 when length of one number is 1
-	  .join("") // Puts the array to togehter to a string
-  }
 
 // 2-way-binding for rgba and hsla
 
