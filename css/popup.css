@@ -221,9 +221,12 @@ input.code {
 .mini-display span[class^="c"] {
 	max-width: 100%;
 	flex-basis: 100%;
-	transition: flex-basis 0.2s, color 0.2s;
+	transition: flex-basis 0.2s, text-shadow 0.2s, color 0.2s;
 	color: transparent;
+	cursor: pointer;
+
 	font-size: 0;
+
 }
 .mini-display span[class^="c"]:hover {
 	flex-basis: 200%;
