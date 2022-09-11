@@ -1,9 +1,9 @@
 # [WIP] Bismuth: Color Picker & Eye Dropper
 
 <p align="center">
-	<img src="images/example3.png" width=300>
-	<img src="images/example.png" width=300>
-	<img src="images/example2.png" width=300>
+	<img src="images/example3.png" width=250>
+	<img src="images/example.png" width=250>
+	<img src="images/example2.png" width=250>
 </p>
   
 > It is not ready yet, but it's almost there
