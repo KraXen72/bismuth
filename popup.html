@@ -41,34 +41,41 @@
 			<button class="copy clean btn" id="copy_hsl">
 				<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="24px" fill="#a3a5aa"><path d="M0 0h24v24H0z" fill="none"/><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
 			</button>
-			<div id="display-hold">
+			<div id="display-hold" class="checkerboard-bg">
 				<span id="display"></span>
 			</div>
 		</div>
 		<div id="generate-wrapper">
-			<button class="clean" id="show-color-table">Generate color table</button>
+			<button class="clean code" id="show-color-table">Generate color table</button>
 		</div>
 		<div id="color-table" class="hide">
 			<span id="analog-t">Analogous:</span>
-			<span class="mini-display" id="analog">
+			<span class="mini-display checkerboard-bg" id="analog">
 				<span class="c1" title="Click to copy"></span>
 				<span class="c2" title="Click to copy"></span>
 			</span>
 			<span id="complement-t">Complementary:</span>
-			<span class="mini-display" id="complement">
+			<span class="mini-display checkerboard-bg" id="complement">
 				<span class="c1" title="Click to copy"></span>
 			</span>
 			<span id="triadic-t">Triadic:</span>
-			<span class="mini-display" id="triadic">
+			<span class="mini-display checkerboard-bg" id="triadic">
 				<span class="c1" title="Click to copy"></span>
 				<span class="c2" title="Click to copy"></span>
 			</span>
 			<span id="tetradic-t">Tetradic:</span>
-			<span class="mini-display" id="tetradic">
+			<span class="mini-display checkerboard-bg" id="tetradic">
 				<span class="c1" title="Click to copy"></span>
 				<span class="c2" title="Click to copy"></span>
 				<span class="c3" title="Click to copy"></span>
 			</span>
+			<div id="hover-tooltip">
+				<span class="display-and-input">
+					<span id="hover-tooltip-display">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+					<span id="hover-tooltip-hex"><span style="opacity:0.5;">&#x2014;</span></span>
+				</span>
+				<span id="hover-tooltip-copymsg"></span>
+			</div>
 		</div>
 
 		<div id="dropper-icon" hidden>
