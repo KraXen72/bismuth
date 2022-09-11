@@ -31,6 +31,7 @@ function alphaAwareCopyCol(type) {
 			break;
 	}
 	navigator.clipboard.writeText(toCopy)
+	document.getElementById("hover-tooltip-copymsg").innerHTML = `Copied ${toCopy.length > 7 ? toCopy.slice(0, 6) + "&#8230;" : toCopy} !`
 }
 
 function RGBAToHexA(rgba, forceRemoveAlpha = false) {
@@ -58,9 +59,14 @@ function generateColorTable() {
 	document.getElementById("color-table").classList.remove("hide")
 	document.getElementById("generate-wrapper").classList.add("hide")
 }
-function hideColorTable() {
+
+function hideColorTable(color) {
 	document.getElementById("color-table").classList.add("hide")
-	document.getElementById("generate-wrapper").classList.remove("hide")
+	if (color.hsla.s > 5) {
+		document.getElementById("generate-wrapper").classList.remove("hide")
+	} else {
+		document.getElementById("generate-wrapper").classList.add("hide")
+	}
 }
 
 // fill up icons to elements
@@ -153,20 +159,45 @@ colorPicker.on("input:start", () => {
 	if ("activeElement" in document) document.activeElement.blur();
 })
 
+registerHoverOnColorSpans()
+
 //other colors
 document.getElementById("show-color-table").onclick = generateColorTable
-colorPicker.on(["color:init", "color:change"], (color) => hideColorTable())
+colorPicker.on(["color:init", "color:change"], (color) => hideColorTable(color))
 
-// function fillColorSpans() {
-// 	console.log("this ran")
-// 	const spans = [...document.querySelectorAll(`#color-table .mini-display span[class^="c"]`)]
+function registerHoverOnColorSpans() {
+	let timeout;
+	const getBG = (element) => RGBAToHexA(window.getComputedStyle(element).backgroundColor)
+	const spanCopy = (bg) => {
+		const msg = document.getElementById("hover-tooltip-copymsg")
+		clearTimeout(timeout)
 
-// 	spans.forEach(span => {
-// 		const rgba = window.getComputedStyle(span).getPropertyValue("background-color")
-// 		const hex = RGBAToHexA(rgba)
-// 		span.textContent = hex
-// 	})
-// }
+		navigator.clipboard.writeText(bg)
+		msg.textContent = `Copied ${bg} !`
+		
+		timeout = setTimeout(() => msg.textContent = "", 3100)
+	}
+	const spans = [...document.querySelectorAll(`#color-table .mini-display span[class^="c"]`)]
+	  
+	spans.forEach(span => {
+		span.addEventListener("mouseenter", (event) => { updateColorTableTooltip(getBG(span)) })
+		span.addEventListener("mouseleave", (event) => { updateColorTableTooltip(false) })
+		span.addEventListener("click", (event) => { spanCopy(getBG(span)) })
+	})
+}
+
+function updateColorTableTooltip(colorOrFalse) {
+	//const mainbody = document.getElementById("hover-tooltip")
+	const display = document.getElementById("hover-tooltip-display")
+	const inp = document.getElementById("hover-tooltip-hex")	
+	if (colorOrFalse) {
+		display.style.backgroundColor = colorOrFalse
+		inp.textContent = colorOrFalse
+	} else {
+		display.style.backgroundColor = "transparent"
+		inp.innerHTML = "<span style=\"opacity:0.5;\">&#x2014;</span>"
+	}
+}
 
 // 2-way-binding for rgba and hsla
 
