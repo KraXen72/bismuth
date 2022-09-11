@@ -266,4 +266,5 @@ function handleResult(result) {
 	navigator.clipboard.writeText(result.sRGBHex);
 
 	colorPicker.color.set(result.sRGBHex)
+	generateColorTable()
 }
