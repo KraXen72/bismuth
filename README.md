@@ -5,7 +5,7 @@
 	<img src="images/example2.png" width=350>
 </p>
   
-> It is not ready yet.
+> It is not ready yet, but it's almost there
 
 ## features
 - clean & feature complete color picker
@@ -14,11 +14,11 @@
 ## planned
 - [x] analogous, complementary, triadic and tetradic colors
 - [x] hidden behind a collapsible with a "Calculate" button
-- [ ] toolbar that updates on mouseenter & hides on mouseleave for color spans
-	- [ ] shows a message "copied to clipboard" when span is clicked
-	- [ ] small preview window in the toolbar for the hovered color just 4 reasurance
-- [ ] all spans should copy onclick
-- [ ] handle semitransparent colors in color table
+- [x] toolbar that updates on mouseenter & hides on mouseleave for color spans
+	- [x] shows a message "copied to clipboard" when span is clicked
+	- [x] small preview window in the toolbar for the hovered color just 4 reasurance
+- [x] all spans should copy onclick
+- [x] handle semitransparent colors in color table
 - [ ] smart quickpaste
 - [x] re-hides on new color
 - [ ] custom eyeDropper implementation (Don't rely on chrome eyeDropper API)
