@@ -1,15 +1,21 @@
-# Work-in-Progress Eye Dropper
+# [WIP] Bismuth: Color Picker & Eye Dropper
 
 <p align="center">
-	<img src="images/example.png" width=350>
-	<img src="images/example2.png" width=350>
+	<img src="images/example3.png" width=300>
+	<img src="images/example.png" width=300>
+	<img src="images/example2.png" width=300>
 </p>
   
 > It is not ready yet, but it's almost there
 
 ## features
-- clean & feature complete color picker
-- 2 way binding to inputs for hex, rgb(a) and hsl(a)
+- Clean & feature complete color picker (using iro.js & custom logic)
+  - Precise X & Y axis adjustment with separates sliders
+  - hex(hex8), rgb(a) and hsl(a) output
+  -  2 way binding to inputs for hex, rgb(a) and hsl(a)
+- Show Analogous, Complementary, Triadic and Tetradic colors
+- Quick copy any color to clipboard
+- Eye dropper from webpage using EyeDropper API (Chrome 95/Opera 81 or newer)
   
 ## planned
 - [x] analogous, complementary, triadic and tetradic colors
@@ -21,7 +27,6 @@
 - [x] handle semitransparent colors in color table
 - [ ] smart quickpaste
 - [x] re-hides on new color
-- [ ] custom eyeDropper implementation (Don't rely on chrome eyeDropper API)
 - [ ] publish chrome extension
 - [ ] publish firefox extension
 
