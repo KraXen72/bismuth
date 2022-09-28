@@ -1,4 +1,4 @@
-# [WIP] Bismuth: Color Picker & Eye Dropper
+# Bismuth: Color Picker & Eye Dropper
 
 <p align="center">
 	<img src="images/example3.png" width=250>
@@ -16,6 +16,11 @@
 - Show Analogous, Complementary, Triadic and Tetradic colors
 - Quick copy any color to clipboard
 - Eye dropper from webpage using EyeDropper API (Chrome 95/Opera 81 or newer)
+
+## installation (chrome / chromium)
+just clone this repo and load unpacked extension. (you have to enable developer mode)    
+![unpacked](images/unpacked.png)  
+firefox version TBD
   
 ## planned
 - [x] analogous, complementary, triadic and tetradic colors
