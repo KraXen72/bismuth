@@ -268,3 +268,37 @@ function handleResult(result) {
 	colorPicker.color.set(result.sRGBHex)
 	generateColorTable()
 }
+
+// https://css-tricks.com/converting-color-spaces-in-javascript/
+// const hexRegex = new RegExp(/^#([\da-f]{3}){1,2}$/, "i")
+// const hex8Regex = new RegExp(/^#([\da-f]{4}){1,2}$/, "i")
+// const rgbRegex = new RegExp(/^rgb\((((((((1?[1-9]?\d)|10\d|(2[0-4]\d)|25[0-5]),\s?)){2}|((((1?[1-9]?\d)|10\d|(2[0-4]\d)|25[0-5])\s)){2})((1?[1-9]?\d)|10\d|(2[0-4]\d)|25[0-5]))|((((([1-9]?\d(\.\d+)?)|100|(\.\d+))%,\s?){2}|((([1-9]?\d(\.\d+)?)|100|(\.\d+))%\s){2})(([1-9]?\d(\.\d+)?)|100|(\.\d+))%))\)$/,"i")
+// const rgbaRegex = new RegExp(/^rgba\((((((((1?[1-9]?\d)|10\d|(2[0-4]\d)|25[0-5]),\s?)){3})|(((([1-9]?\d(\.\d+)?)|100|(\.\d+))%,\s?){3}))|(((((1?[1-9]?\d)|10\d|(2[0-4]\d)|25[0-5])\s){3})|(((([1-9]?\d(\.\d+)?)|100|(\.\d+))%\s){3}))\/\s)((0?\.\d+)|[01]|(([1-9]?\d(\.\d+)?)|100|(\.\d+))%)\)$/, "i")
+// const hslRegex = new RegExp(/^hsl\(((((([12]?[1-9]?\d)|[12]0\d|(3[0-5]\d))(\.\d+)?)|(\.\d+))(deg)?|(0|0?\.\d+)turn|(([0-6](\.\d+)?)|(\.\d+))rad)((,\s?(([1-9]?\d(\.\d+)?)|100|(\.\d+))%){2}|(\s(([1-9]?\d(\.\d+)?)|100|(\.\d+))%){2})\)$/, "i")
+// const hslaRegex = new RegExp(/^hsla\(((((([12]?[1-9]?\d)|[12]0\d|(3[0-5]\d))(\.\d+)?)|(\.\d+))(deg)?|(0|0?\.\d+)turn|(([0-6](\.\d+)?)|(\.\d+))rad)(((,\s?(([1-9]?\d(\.\d+)?)|100|(\.\d+))%){2},\s?)|((\s(([1-9]?\d(\.\d+)?)|100|(\.\d+))%){2}\s\/\s))((0?\.\d+)|[01]|(([1-9]?\d(\.\d+)?)|100|(\.\d+))%)\)$/, "i")
+
+document.addEventListener("paste", async (e) => {
+	if (document.activeElement === document.body) {
+		// e.preventDefault()
+		console.log(navigator.clipboard)
+		navigator.clipboard.readText().then(text => {
+			console.log("pasted while not focused", e, text)
+		})
+		
+		// if (hexRegex.test(text)) {
+		// 	colorPicker.color.hexString = text
+		// } else if (hex8Regex.test(text)) {
+		// 	colorPicker.color.hex8String = text
+		// } else if (rgbRegex.test(text)) {
+		// 	colorPicker.color.rgbString = text
+		// } else if (rgbaRegex.test(text)) {
+		// 	colorPicker.color.rgbaString = text
+		// } else if (hslaRegex.test(text)) {
+		// 	colorPicker.color.hslaString = text
+		// } else if (hslRegex.test(text)) {
+		// 	colorPicker.color.hslString = text
+		// } else {
+		// 	console.log("invalid color pasted")
+		// }
+	}
+})

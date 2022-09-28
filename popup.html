@@ -11,6 +11,9 @@
 			<span class="span-hex valspan">
 				<span id="t_hex" class="val-label">hex:</span>
 				<input type="text" class="code" id="c_hex">
+				<button class="copy clean btn" id="paste_hex" title="read any color from clipboard">
+					<svg xmlns="http://www.w3.org/2000/svg" height="18px" width="24" viewBox="0 0 24 24" fill="#a3a5aa"><path fill="none" d="M0 0h24v24H0z"/><path d="M5 5h2v3h10V5h2v6h2V5c0-1.1-.9-2-2-2h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h5v-2H5V5zm7-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1z"/><path d="m18.01 13-1.42 1.41 1.58 1.58H12v2h6.17l-1.58 1.59 1.42 1.41 3.99-4z"/></svg>
+				</button>
 			</span>
 			<span class="span-rgb valspan" spellcheck="false">
 				<span id="t_rgb" class="val-label">rgba(</span>
@@ -32,13 +35,13 @@
 				</span>
 				<span id="c_hsl_end" id="hide">)</span>
 			</span>
-			<button class="copy clean btn" id="copy_hex">
+			<button class="copy clean btn" id="copy_hex" title="copy hex value">
 				<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="24px" fill="#a3a5aa"><path d="M0 0h24v24H0z" fill="none"/><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
 			</button>
-			<button class="copy clean btn" id="copy_rgb">
+			<button class="copy clean btn" id="copy_rgb" title="copy rgb value">
 				<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="24px" fill="#a3a5aa"><path d="M0 0h24v24H0z" fill="none"/><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
 			</button>
-			<button class="copy clean btn" id="copy_hsl">
+			<button class="copy clean btn" id="copy_hsl"  title="copy hsl value">
 				<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="24px" fill="#a3a5aa"><path d="M0 0h24v24H0z" fill="none"/><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
 			</button>
 			<div id="display-hold" class="checkerboard-bg">

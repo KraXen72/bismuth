@@ -161,6 +161,13 @@ body {
 #copy_rgb { grid-row: 2 }
 #copy_hsl { grid-row: 3 }
 
+#values .copy#paste_hex {
+	flex-grow: 0;
+	width: min-content; 
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
 code,
 input.code,
 .clean {
@@ -178,6 +185,13 @@ input.code {
 	box-sizing: border-box;
 	width: 100%;
 	height: min-content;
+}
+input.code#c_hex {
+	flex-grow: 1;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+
+	border-right: none;
 }
 
 .valspan input.code:not(#c_hex) {
