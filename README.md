@@ -25,7 +25,7 @@
 	- [x] small preview window in the toolbar for the hovered color just 4 reasurance
 - [x] all spans should copy onclick
 - [x] handle semitransparent colors in color table
-- [ ] smart quickpaste
+- [x] smart quickpaste
 - [x] re-hides on new color
 - [ ] publish chrome extension
 - [ ] publish firefox extension
