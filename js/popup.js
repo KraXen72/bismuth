@@ -109,7 +109,7 @@ const buttonProps = {
 	classList: "btn clean", 
 	id: "get-color-btn",
 }
-const noSupport = "eyeDropper API is not supported. Update to Chrome 95/Opera 81 or newer"
+const noSupport = "eyeDropper API is not supported.\nUpdate to Chrome 95/Opera 81 or newer"
 
 if (eyeDropperSupport) {
 	buttonProps.innerHTML = document.getElementById("dropper-icon").innerHTML
