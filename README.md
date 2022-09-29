@@ -21,20 +21,7 @@ just clone this repo and load unpacked extension. (you have to enable developer 
 ![unpacked](images/unpacked.png)  
 ### firefox version
 [Get it on Moziila Addons Store](https://addons.mozilla.org/en-US/firefox/addon/bismuth-color-picker/)
-  
-## planned
-- [x] analogous, complementary, triadic and tetradic colors
-- [x] hidden behind a collapsible with a "Calculate" button
-- [x] toolbar that updates on mouseenter & hides on mouseleave for color spans
-	- [x] shows a message "copied to clipboard" when span is clicked
-	- [x] small preview window in the toolbar for the hovered color just 4 reasurance
-- [x] all spans should copy onclick
-- [x] handle semitransparent colors in color table
-- [x] smart quickpaste
-- [x] re-hides on new color
-- [ ] publish chrome extension
-- [ ] publish firefox extension
-
+  S
 ## credit
 - thanks to [https://github.com/vadymstebakov/eye-dropper](https://github.com/vadymstebakov/eye-dropper) for the original eyeDropper API implementation and the icon
 - thanks to [iro.js](https://iro.js.org) for some color picker components
