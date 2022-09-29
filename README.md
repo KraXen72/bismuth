@@ -6,8 +6,6 @@
 	<img src="images/example2.png" width=250>
 </p>
   
-> It is not ready yet, but it's almost there
-
 ## features
 - Clean & feature complete color picker (using iro.js & custom logic)
   - Precise X & Y axis adjustment with separates sliders
