@@ -15,10 +15,12 @@
 - Quick copy any color to clipboard
 - Eye dropper from webpage using EyeDropper API (Chrome 95/Opera 81 or newer)
 
-## installation (chrome / chromium)
+## installation
+### (chrome / chromium)
 just clone this repo and load unpacked extension. (you have to enable developer mode)    
 ![unpacked](images/unpacked.png)  
-firefox version TBD
+### firefox version
+[Get it on Moziila Addons Store](https://addons.mozilla.org/en-US/firefox/addon/bismuth-color-picker/)
   
 ## planned
 - [x] analogous, complementary, triadic and tetradic colors

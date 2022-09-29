@@ -1,17 +1,17 @@
 {
-	"name": "Bismuth: Color Picker & Eye dropper",
-	"description": "Bismuth is a convenient, information rich Color Picker & Eye dropper. Uses IRO.js and chrome Eyedropper API",
+	"name": "Bismuth: Color Picker",
+	"description": "Bismuth is a convenient, information rich Color Picker. Uses IRO.js. manifest-v2",
 	"version": "1.0",
-	"manifest_version": 3,
+	"manifest_version": 2,
 	"icons": {
 		"16": "images/icon16.png",
 		"32": "images/icon32.png",
 		"48": "images/icon48.png",
 		"128": "images/icon128.png"
 	},
-	"action": {
+	"browser_action": {
 		"default_popup": "popup.html",
-		"default_icons": {
+		"default_icon": {
 			"16": "images/icon16.png",
 			"32": "images/icon32.png",
 			"48": "images/icon48.png",
