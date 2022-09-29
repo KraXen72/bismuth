@@ -21,7 +21,7 @@ just clone this repo and load unpacked extension. (you have to enable developer 
 ![unpacked](images/unpacked.png)  
 ### firefox version
 [Get it on Moziila Addons Store](https://addons.mozilla.org/en-US/firefox/addon/bismuth-color-picker/)
-  S
+  
 ## credit
 - thanks to [https://github.com/vadymstebakov/eye-dropper](https://github.com/vadymstebakov/eye-dropper) for the original eyeDropper API implementation and the icon
 - thanks to [iro.js](https://iro.js.org) for some color picker components
