@@ -10,7 +10,7 @@
 - Clean & feature complete color picker (using iro.js & custom logic)
 - Precise X & Y axis adjustment with separates sliders
 - hex(hex8), rgb(a) and hsl(a) output
--  2-way binding to inputs for hex, rgb(a) and hsl(a)
+- 2-way binding to inputs for hex, rgb(a) and hsl(a)
 - Show Analogous, Complementary, Triadic and Tetradic colors
 - Quick copy any color to clipboard, quickload any color in clipboard
 - Eye dropper from webpage using EyeDropper API (Chrome 95/Opera 81 or newer)
