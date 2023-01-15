@@ -26,7 +26,7 @@ just clone this repo and load unpacked extension. (you have to enable developer 
 [Get it on Mozilla Addons Store](https://addons.mozilla.org/en-US/firefox/addon/bismuth-color-picker/)  
 Firefox version does not have a working EyeDropper API implementation, so the EyeDropper button does not work.  
 For now you can install another extension like [ColorZilla](https://addons.mozilla.org/en-US/firefox/addon/colorzilla/) to pick the color, and use the QuickPaste button to get it in bismuth.  
-Implementing a custom EyeDropper is currently out of scope, either wait for firefox to add the EyeDropper API or submit a pull request implementing an eye-dropper similar to the EyeDropper API.  
+Implementing a custom EyeDropper is currently out of scope, either wait for firefox to add the [EyeDropper API](https://caniuse.com/mdn-api_eyedropper) or submit a pull request implementing an eye-dropper similar to the EyeDropper API.  
   
 ## credit
 - thanks to [https://github.com/vadymstebakov/eye-dropper](https://github.com/vadymstebakov/eye-dropper) for the original eyeDropper API implementation and the icon
