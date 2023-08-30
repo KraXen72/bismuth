@@ -6,9 +6,20 @@ const componentOpts = {
 	width: iroSize,
 }
 
-// utils. TODO move to different file
 function randomNumberBetween(min, max) {
 	return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
+/**
+ * Math.round but behaves correctly when rounding floating point numbers
+ * it does this by first converting the numbers to integers, rounding them and then dividing them back to floating points.
+ * @param {number} number number to round
+ * @param {number} precision the decimal points precision. default it 2
+ * @returns {number} the rounded number with correct decimal points
+ */
+function precisionRound(number, precision = 2) {
+	let factor = Math.pow(10, precision);
+	return Math.round(number * factor) / factor;
 }
 
 function alphaAwareCopyCol(type) {
@@ -219,6 +230,14 @@ function registerColorPickerUpdater(idArr, keyArr, channel) {
 			//console.log(e.target, e.target.value, keyArr[i])
 			colorPicker.color.setChannel(channel, keyArr[i], e.target.value)
 			generateColorTable()
+		}
+		input.onwheel = (e) => {
+			const value = Number(e.target.value)
+			const direction = e.deltaY > 0 ? -1 : 1;
+			let increment = e.ctrlKey ? 10 : e.shiftKey ? 5 : 1;
+			if (idArr[i].endsWith("_a")) increment = e.ctrlKey ? 0.10 : e.shiftKey ? 0.01 : 0.05;
+			if (e.ctrlKey) e.preventDefault()
+			colorPicker.color.setChannel(channel, keyArr[i], precisionRound(value + (increment * direction)))
 		}
 	}
 }
