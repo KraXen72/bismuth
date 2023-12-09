@@ -31,3 +31,4 @@ Implementing a custom EyeDropper is currently out of scope, either wait for fire
 ## credit
 - thanks to [https://github.com/vadymstebakov/eye-dropper](https://github.com/vadymstebakov/eye-dropper) for the original eyeDropper API implementation and the icon
 - thanks to [iro.js](https://iro.js.org) for some color picker components
+- thanks to [Rice7th](https://github.com/rice7th) for the name!
