@@ -18,7 +18,7 @@ function randomNumberBetween(min, max) {
  * @returns {number} the rounded number with correct decimal points
  */
 function precisionRound(number, precision = 2) {
-	let factor = Math.pow(10, precision);
+	const factor = 10 ** precision;
 	return Math.round(number * factor) / factor;
 }
 
@@ -39,10 +39,9 @@ function alphaAwareCopyCol(type) {
 			break;
 		default:
 			throw new Error(`Unknown type ${type}. supported: 'hex', 'rgb' and 'hsl'`)
-			break;
 	}
 	navigator.clipboard.writeText(toCopy)
-	document.getElementById("hover-tooltip-copymsg").innerHTML = `Copied ${toCopy.length > 7 ? toCopy.slice(0, 6) + "&#8230;" : toCopy} !`
+	document.getElementById("hover-tooltip-copymsg").innerHTML = `Copied ${toCopy.length > 7 ? `${toCopy.slice(0, 6)}&#8230;` : toCopy} !`
 }
 
 function RGBAToHexA(rgba, forceRemoveAlpha = false) {
@@ -81,11 +80,10 @@ function hideColorTable(color) {
 }
 
 // fill up icons to elements
-[...document.querySelectorAll(`#color-table .mini-display span[class^="c"]`)]
-	.forEach(span => {
-		const copyIcon = document.querySelector("#copy-icon svg").cloneNode(true)
-		span.appendChild(copyIcon)
-	})
+for (const span of document.querySelectorAll(`#color-table .mini-display span[class^="c"]`)) {
+	const copyIcon = document.querySelector("#copy-icon svg").cloneNode(true)
+	span.appendChild(copyIcon)
+}
 
 // some pretty colors i picked from coolors.co + my own favs
 const startColors = [
@@ -288,15 +286,24 @@ function handleResult(result) {
 	generateColorTable()
 }
 
-// paste handling
-document.getElementById("paste_hex").addEventListener("click", async (e) => {
-	console.log("clicked paste")
-
+async function handlePaste() {
+	console.log('pasting')
 	const input = document.getElementById("c_hex")
+	const prevValue = input.value
+	const prevColor = colorPicker.color.hex8String
+
 	input.value = ""
 	input.focus()
 	// i tired really hard to use navigator.clipboard API here but i don't know how to handle permission clipboardWrite state of "prompt"
 	document.execCommand("paste")
 	colorPicker.color.set(input.value)
 	input.blur()
-})
+
+	if (colorPicker.color.hex8String === prevColor) {
+		input.value = prevValue
+	}
+}
+
+// paste handling
+document.getElementById("paste_hex").addEventListener("click", handlePaste)
+document.addEventListener("DOMContentLoaded", handlePaste)
