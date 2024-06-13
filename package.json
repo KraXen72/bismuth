@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "build": "esbuild js_src/popup.js --bundle --minify --outdir=js",
-    "watch": "esbuild js_src/popup.js --bundle --minify --outdir=js --watch",
+    "dev": "esbuild js_src/popup.js --bundle --minify --outdir=js --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

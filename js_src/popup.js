@@ -1,6 +1,5 @@
 import iro from '@jaames/iro';
 // import 'eyedropper-polyfill';
-console.log(d)
 
 const iroSize = 225
 const componentOpts = {
@@ -95,9 +94,11 @@ const startColors = [
 	"#c11c66", "#ffcb00", "#48c7d9", "#2fc58f", "#6d5dca"
 ]
 
-const eyeDropperSupport = ('EyeDropper' in window)
+const eyeDropperSupport = ('EyeDropper' in window);
 let eyeDropper;
-if (eyeDropperSupport) eyeDropper = new eyeDropper()
+if (eyeDropperSupport) {
+	eyeDropper = new window.EyeDropper();
+}
 
 const colorPicker = new iro.ColorPicker('#picker', {
 	// sliders: can be 'hue', 'saturation', 'value', 'red', 'green', 'blue', 'alpha' or 'kelvin'
@@ -142,7 +143,7 @@ document.getElementById("copy_hsl").onclick = () => alphaAwareCopyCol('hsl')
 const display = document.getElementById("display")
 const inpHex = document.getElementById("c_hex")
 
-inpHex.onchange = (e) => { colorPicker.color.set(e.target.value); generateColorTable() }
+inpHex.onchange = (e) => { colorPicker.color.set(e.target.value); }
 
 registerColorPickerUpdater(["c_rgb_r", "c_rgb_g", "c_rgb_b", "c_rgb_a"],
 	['r', 'g', 'b', 'a'], "rgba")
@@ -291,6 +292,7 @@ function handleResult(result) {
 async function handlePaste() {
 	console.log('pasting')
 	const input = document.getElementById("c_hex")
+	await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
 	const prevValue = input.value
 	const prevColor = colorPicker.color.hex8String
 
