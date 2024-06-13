@@ -1,0 +1,21 @@
+{
+  "name": "eye-dropper",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "esbuild js_src/popup.js --bundle --minify --outdir=js",
+    "watch": "esbuild js_src/popup.js --bundle --minify --outdir=js --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.21.5"
+  },
+  "dependencies": {
+    "@jaames/iro": "^5.5.2"
+  }
+}
