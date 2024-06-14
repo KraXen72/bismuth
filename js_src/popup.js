@@ -292,7 +292,6 @@ function handleResult(result) {
 async function handlePaste() {
 	console.log('pasting')
 	const input = document.getElementById("c_hex")
-	await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
 	const prevValue = input.value
 	const prevColor = colorPicker.color.hex8String
 
