@@ -1,312 +1,378 @@
 import iro from '@jaames/iro';
-// import 'eyedropper-polyfill';
+import { converter, parse, formatCss } from 'culori';
 
-const iroSize = 225
-const componentOpts = {
-	layoutDirection: 'horizontal',
-	width: iroSize,
-}
+const toOklch = converter('oklch');
+const toRgb   = converter('rgb');
+
+const iroSize = 225;
+const componentOpts = { layoutDirection: 'horizontal', width: iroSize };
 
 function randomNumberBetween(min, max) {
-	return Math.floor(Math.random() * (max - min + 1) + min)
+	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-/**
- * Math.round but behaves correctly when rounding floating point numbers
- * it does this by first converting the numbers to integers, rounding them and then dividing them back to floating points.
- * @param {number} number number to round
- * @param {number} precision the decimal points precision. default it 2
- * @returns {number} the rounded number with correct decimal points
- */
 function precisionRound(number, precision = 2) {
 	const factor = 10 ** precision;
 	return Math.round(number * factor) / factor;
 }
 
 function alphaAwareCopyCol(type) {
-	const c = colorPicker.color
-	const a = c.alpha < 1
-	let toCopy = ""
-
+	const c = colorPicker.color;
+	const a = c.alpha !== 1;
+	let toCopy;
 	switch (type) {
-		case "hex":
-			toCopy = a ? c.hex8String : c.hexString
-			break;
-		case "rgb":
-			toCopy = a ? c.rgbaString : c.rgbString
-			break;
-		case "hsl":
-			toCopy = a ? c.hslaString : c.hslString
-			break;
-		default:
-			throw new Error(`Unknown type ${type}. supported: 'hex', 'rgb' and 'hsl'`)
+		case 'hex': toCopy = a ? c.hex8String : c.hexString; break;
+		case 'rgb': toCopy = a ? c.rgbaString : c.rgbString; break;
+		case 'hsl': toCopy = a ? c.hslaString : c.hslString; break;
+		default: throw new Error(`Unknown type ${type}. supported: hex, rgb and hsl`);
 	}
-	navigator.clipboard.writeText(toCopy)
-	document.getElementById("hover-tooltip-copymsg").innerHTML = `Copied ${toCopy.length > 7 ? `${toCopy.slice(0, 6)}&#8230;` : toCopy} !`
+	navigator.clipboard.writeText(toCopy);
+	document.getElementById('hover-tooltip-copymsg').innerHTML =
+	`Copied ${toCopy.length > 7 ? toCopy.slice(0, 6) + '…' : toCopy}!`;
 }
 
 function RGBAToHexA(rgba, forceRemoveAlpha = false) {
-	return "#" + rgba.replace(/^rgba?\(|\s+|\)$/g, '') // Get's rgba / rgb string values
-	  .split(',') // splits them at ","
-	  .filter((string, index) => !forceRemoveAlpha || index !== 3)
-	  .map(string => parseFloat(string)) // Converts them to numbers
-	  .map((number, index) => index === 3 ? Math.round(number * 255) : number) // Converts alpha to 255 number
-	  .map(number => number.toString(16)) // Converts numbers to hex
-	  .map(string => string.length === 1 ? "0" + string : string) // Adds 0 when length of one number is 1
-	  .join("") // Puts the array to togehter to a string
+	return rgba
+	.replace(/^rgba?\(|\s+|\)$/g, '')
+	.split(',')
+	.filter((string, index) => !forceRemoveAlpha || index !== 3)
+	.map(string => parseFloat(string))
+	.map((number, index) => index === 3 ? Math.round(number * 255) : number)
+	.map(number => number.toString(16))
+	.map(string => string.length === 1 ? '0' + string : string)
+	.join('');
 }
 
-// color table utils
-function generateColorTable() {
-	const hsla = colorPicker.color.hsla
+// ─── OKLCH helpers (via culori) ──────────────────────────────────────────────
 
+function parseOklchString(str) {
+	const parsed = parse(str.trim());
+	if (!parsed) return null;
+	return toOklch(parsed);
+}
+
+function formatOklchDisplay(oklchColor) {
+	return formatCss(oklchColor);
+}
+
+function oklchToRgb255(oklchColor) {
+	const rgb = toRgb(oklchColor);
+	return {
+		r: Math.round(Math.min(1, Math.max(0, rgb.r ?? 0)) * 255),
+		g: Math.round(Math.min(1, Math.max(0, rgb.g ?? 0)) * 255),
+		b: Math.round(Math.min(1, Math.max(0, rgb.b ?? 0)) * 255),
+	};
+}
+
+function iroColorToOklch(iroColor) {
+	const { r, g, b } = iroColor.rgb;
+	return toOklch({ mode: 'rgb', r: r / 255, g: g / 255, b: b / 255 });
+}
+
+// ─── color table utils ───────────────────────────────────────────────────────
+
+function generateColorTable() {
+	const hsla = colorPicker.color.hsla;
 	document.documentElement.style.setProperty('--h', `${hsla.h}deg`);
 	document.documentElement.style.setProperty('--s', `${hsla.s}%`);
 	document.documentElement.style.setProperty('--l', `${hsla.l}%`);
-	document.documentElement.style.setProperty('--a', `${hsla.a}`);
-
-	console.log(hsla)
-
-	document.getElementById("color-table").classList.remove("hide")
-	document.getElementById("generate-wrapper").classList.add("hide")
+	document.documentElement.style.setProperty('--a', hsla.a);
+	document.getElementById('color-table').classList.remove('hide');
+	document.getElementById('generate-wrapper').classList.add('hide');
 }
 
 function hideColorTable(color) {
-	document.getElementById("color-table").classList.add("hide")
-	if (color.hsla.s > 5) {
-		document.getElementById("generate-wrapper").classList.remove("hide")
+	document.getElementById('color-table').classList.add('hide');
+	if (color.hsla.s < 5) {
+		document.getElementById('generate-wrapper').classList.remove('hide');
 	} else {
-		document.getElementById("generate-wrapper").classList.add("hide")
+		document.getElementById('generate-wrapper').classList.add('hide');
 	}
 }
 
 // fill up icons to elements
-for (const span of document.querySelectorAll(`#color-table .mini-display span[class^="c"]`)) {
-	const copyIcon = document.querySelector("#copy-icon svg").cloneNode(true)
-	span.appendChild(copyIcon)
+for (const span of document.querySelectorAll('#color-table .mini-display span.c')) {
+	const copyIcon = document.querySelector('#copy-icon svg').cloneNode(true);
+	span.appendChild(copyIcon);
 }
 
-// some pretty colors i picked from coolors.co + my own favs
-const startColors = [
-	"#22223b", "#4a4e69", "#c9ada7", "#ff9e00", "#ffd04e",
-	"#723d46", "#84a98c", "#52796f", "#354f52", "#2f3e46",
-	"#f9dbbd", "#ffa5ab", "#da627d", "#a53860", "#a57562",
-	"#c11c66", "#ffcb00", "#48c7d9", "#2fc58f", "#6d5dca"
-]
+const startColors = ['22223b','4a4e69','c9ada7','ff9e00','ffd04e','723d46','84a98c','52796f','354f52','2f3e46','f9dbbd','ffa5ab','da627d','a53860','a57562','c11c66','ffcb00','48c7d9','2fc58f','6d5dca'];
 
-const eyeDropperSupport = ('EyeDropper' in window);
+const eyeDropperSupport = 'EyeDropper' in window;
 let eyeDropper;
-if (eyeDropperSupport) {
-	eyeDropper = new window.EyeDropper();
-}
+if (eyeDropperSupport) eyeDropper = new window.EyeDropper();
 
 const colorPicker = new iro.ColorPicker('#picker', {
-	// sliders: can be 'hue', 'saturation', 'value', 'red', 'green', 'blue', 'alpha' or 'kelvin'
 	width: 300,
-	display: "grid",
+	display: 'grid',
 	margin: 0,
 	boxHeight: iroSize,
 	handleRadius: 6,
-	color: startColors[randomNumberBetween(0, 19)] /*"#a57562"*/,
-	layout: [
-		{ component: iro.ui.Slider, options: { sliderType: 'alpha', ...componentOpts } },
-		{ component: iro.ui.Slider, options: { sliderType: 'hue', ...componentOpts } },
-		{ component: iro.ui.Slider, options: { sliderType: 'value', ...componentOpts } },
-		{ component: iro.ui.Box, options: componentOpts },
-		{ component: iro.ui.Slider, options: { sliderType: 'saturation', width: iroSize } }
-	]
+	color: startColors[randomNumberBetween(0, 19)],
+																				layout: [
+																					{ component: iro.ui.Slider, options: { sliderType: 'alpha',      ...componentOpts } },
+																					{ component: iro.ui.Slider, options: { sliderType: 'hue',        ...componentOpts } },
+																					{ component: iro.ui.Slider, options: { sliderType: 'value',      ...componentOpts } },
+																					{ component: iro.ui.Box,    options: componentOpts },
+																					{ component: iro.ui.Slider, options: { sliderType: 'saturation', width: iroSize } },
+																				],
 });
 
-const buttonProps = {
-	classList: "btn clean", 
-	id: "get-color-btn",
-}
-const noSupport = "eyeDropper API is not supported.\nUpdate to Chrome 95/Opera 81 or newer"
-
+const buttonProps = { classList: 'btn clean', id: 'get-color-btn' };
+const noSupport = 'eyeDropper API is not supported. Requires Chrome 95/Opera 81 or newer';
 if (eyeDropperSupport) {
-	buttonProps.innerHTML = document.getElementById("dropper-icon").innerHTML
-	buttonProps.onclick = getColor
+	buttonProps.innerHTML = document.getElementById('dropper-icon').innerHTML;
+	buttonProps.onclick = getColor;
 } else {
-	buttonProps.innerHTML = document.getElementById("disabled-icon").innerHTML
-	buttonProps.onclick = () => alert(noSupport)
+	buttonProps.innerHTML = document.getElementById('disabled-icon').innerHTML;
+	buttonProps.onclick = () => alert(noSupport);
+}
+document.querySelector('#picker .IroColorPicker').appendChild(Object.assign(document.createElement('button'), buttonProps));
+
+// ─── copying of colors ────────────────────────────────────────────────────────
+document.getElementById('copyhex').onclick   = () => alphaAwareCopyCol('hex');
+document.getElementById('copyrgb').onclick   = () => alphaAwareCopyCol('rgb');
+document.getElementById('copyhsl').onclick   = () => alphaAwareCopyCol('hsl');
+document.getElementById('copyoklch').onclick = () => {
+	const oklch = iroColorToOklch(colorPicker.color);
+	const str = formatOklchDisplay(oklch);
+	navigator.clipboard.writeText(str);
+	document.getElementById('hover-tooltip-copymsg').innerHTML =
+	`Copied ${str.length > 7 ? str.slice(0, 6) + '…' : str}!`;
+};
+
+const display = document.getElementById('display');
+const inpHex  = document.getElementById('chex');
+
+inpHex.onchange = (e) => colorPicker.color.set(e.target.value);
+
+registerColorPickerUpdater(['crgbr','crgbg','crgbb','crgba'], ['r','g','b','a'], 'rgba');
+registerColorPickerUpdater(['chslh','chsls','chsll','chsla'], ['h','s','l','a'], 'hsla');
+
+// ─── OKLCH element references ─────────────────────────────────────────────────
+const inpOklch  = document.getElementById('coklch');
+const inpOklchL = document.getElementById('coklchl');
+const inpOklchC = document.getElementById('coklchc');
+const inpOklchH = document.getElementById('coklchh');
+const sliderL   = document.getElementById('oklch-slider-l');
+const sliderC   = document.getElementById('oklch-slider-c');
+const sliderH   = document.getElementById('oklch-slider-h');
+
+// ─── OKLCH slider gradient updater ───────────────────────────────────────────
+function updateOklchSliderGradients(l, c, h) {
+	const STEPS = 8;
+
+	const lStops = Array.from({ length: STEPS + 1 }, (_, i) => {
+		const lv = i / STEPS;
+		const { r, g, b } = oklchToRgb255({ mode: 'oklch', l: lv, c, h });
+		return `rgb(${r},${g},${b}) ${(i / STEPS) * 100}%`;
+	});
+	sliderL.style.background = `linear-gradient(to right, ${lStops.join(', ')})`;
+
+	const cStops = Array.from({ length: STEPS + 1 }, (_, i) => {
+		const cv = (i / STEPS) * 0.4;
+		const { r, g, b } = oklchToRgb255({ mode: 'oklch', l, c: cv, h });
+		return `rgb(${r},${g},${b}) ${(i / STEPS) * 100}%`;
+	});
+	sliderC.style.background = `linear-gradient(to right, ${cStops.join(', ')})`;
+
+	const hStops = Array.from({ length: 13 }, (_, i) => {
+		const hv = (i / 12) * 360;
+		const { r, g, b } = oklchToRgb255({ mode: 'oklch', l, c, h: hv });
+		return `rgb(${r},${g},${b}) ${(i / 12) * 100}%`;
+	});
+	sliderH.style.background = `linear-gradient(to right, ${hStops.join(', ')})`;
 }
 
-document.querySelector("#picker .IroColorPicker").appendChild(
-	Object.assign(document.createElement("button"), buttonProps)
-)
+// ─── Update OKLCH row from iro color event ────────────────────────────────────
+function updateOklchFromColor(iroColor) {
+	const oklch = iroColorToOklch(iroColor);
+	const l = oklch.l ?? 0;
+	const c = oklch.c ?? 0;
+	const h = oklch.h ?? 0;
 
-// copying of colors
-document.getElementById("copy_hex").onclick = () => alphaAwareCopyCol('hex')
-document.getElementById("copy_rgb").onclick = () => alphaAwareCopyCol('rgb')
-document.getElementById("copy_hsl").onclick = () => alphaAwareCopyCol('hsl')
+	inpOklch.value  = formatOklchDisplay(oklch);
+	inpOklchL.value = precisionRound(l * 100, 2);
+	inpOklchC.value = precisionRound(c, 4);
+	inpOklchH.value = precisionRound(h, 3);
+	sliderL.value   = l;
+	sliderC.value   = c;
+	sliderH.value   = h;
 
-const display = document.getElementById("display")
-const inpHex = document.getElementById("c_hex")
+	updateOklchSliderGradients(l, c, h);
+}
 
-inpHex.onchange = (e) => { colorPicker.color.set(e.target.value); }
+// ─── Push OKLCH channels → iro ────────────────────────────────────────────────
+function applyOklchChannels() {
+	const l = parseFloat(inpOklchL.value) / 100;
+	const c = parseFloat(inpOklchC.value);
+	const h = parseFloat(inpOklchH.value);
+	if (isNaN(l) || isNaN(c) || isNaN(h)) return;
+	const { r, g, b } = oklchToRgb255({ mode: 'oklch', l, c, h });
+	colorPicker.color.set(`rgb(${r}, ${g}, ${b})`);
+	generateColorTable();
+}
 
-registerColorPickerUpdater(["c_rgb_r", "c_rgb_g", "c_rgb_b", "c_rgb_a"],
-	['r', 'g', 'b', 'a'], "rgba")
-	
-registerColorPickerUpdater(["c_hsl_h", "c_hsl_s", "c_hsl_l", "c_hsl_a"],
-	['h', 's', 'l', 'a'], "hsla",)
+inpOklch.onchange = (e) => {
+	const parsed = parseOklchString(e.target.value);
+	if (!parsed) return;
+	const { r, g, b } = oklchToRgb255(parsed);
+	colorPicker.color.set(`rgb(${r}, ${g}, ${b})`);
+	generateColorTable();
+};
 
-colorPicker.on(["color:init", "color:change"], function (color) {
-	// Show the current color in different formats
-	// Using the selected color: https://iro.js.org/guide.html#selected-color-api
-	const a = color.alpha < 1
+inpOklchL.onchange = applyOklchChannels;
+inpOklchC.onchange = applyOklchChannels;
+inpOklchH.onchange = applyOklchChannels;
 
-	inpHex.value = a ? color.hex8String : color.hexString
-	// inpRgb.value = a ? color.rgbaString : color.rgbString
-	// inpHsl.value = a ? color.hslaString : color.hslString
-	updateInputElements(["c_rgb_r", "c_rgb_g", "c_rgb_b", "c_rgb_a"],
-		[color.red, color.green, color.blue, color.alpha], a, "rgb")
-	
-	updateInputElements(["c_hsl_h", "c_hsl_s", "c_hsl_l", "c_hsl_a"],
-		[color.hsla.h, color.hsla.s, color.hsla.l, color.hsla.a], a, "hsl")
+function addOklchWheelListener(input, min, max, step) {
+	input.onwheel = (e) => {
+		const direction = e.deltaY > 0 ? -1 : 1;
+		let increment = step;
+		if (e.ctrlKey)       increment = step * 10;
+		else if (e.shiftKey) increment = step * 5;
+		const value = Math.min(max, Math.max(min, parseFloat(input.value) + increment * direction));
+		input.value = precisionRound(value, 4);
+		applyOklchChannels();
+		if (e.ctrlKey) e.preventDefault();
+	};
+}
+addOklchWheelListener(inpOklchL, 0, 100, 1);
+addOklchWheelListener(inpOklchC, 0, 0.4, 0.01);
+addOklchWheelListener(inpOklchH, 0, 360, 1);
 
-	display.style.background = a ? color.hex8String : color.hexString
+function applyOklchSliders() {
+	const l = parseFloat(sliderL.value);
+	const c = parseFloat(sliderC.value);
+	const h = parseFloat(sliderH.value);
+	const { r, g, b } = oklchToRgb255({ mode: 'oklch', l, c, h });
+	colorPicker.color.set(`rgb(${r}, ${g}, ${b})`);
+	generateColorTable();
+}
+sliderL.oninput = applyOklchSliders;
+sliderC.oninput = applyOklchSliders;
+sliderH.oninput = applyOklchSliders;
+
+// ─── Main color change handler ────────────────────────────────────────────────
+colorPicker.on(['colorinit', 'colorchange'], function(color) {
+	const a = color.alpha !== 1;
+	inpHex.value = a ? color.hex8String : color.hexString;
+	updateInputElements(['crgbr','crgbg','crgbb','crgba'], [color.red, color.green, color.blue, color.alpha], a, 'rgb');
+	updateInputElements(['chslh','chsls','chsll','chsla'], [color.hsla.h, color.hsla.s, color.hsla.l, color.hsla.a], a, 'hsl');
+	display.style.background = a ? color.hex8String : color.hexString;
+	updateOklchFromColor(color);
 });
-colorPicker.on("input:start", () => {
-	if ("activeElement" in document) document.activeElement.blur();
-})
 
-registerHoverOnColorSpans()
+colorPicker.on('inputstart', () => {
+	if ('activeElement' in document) document.activeElement.blur();
+});
 
-//other colors
-document.getElementById("show-color-table").onclick = generateColorTable
-colorPicker.on(["color:init", "color:change"], (color) => hideColorTable(color))
+registerHoverOnColorSpans();
+
+document.getElementById('show-color-table').onclick = generateColorTable;
+colorPicker.on(['colorinit', 'colorchange'], (color) => hideColorTable(color));
 
 function registerHoverOnColorSpans() {
 	let timeout;
-	const getBG = (element) => RGBAToHexA(window.getComputedStyle(element).backgroundColor)
+	const getBG = (element) => RGBAToHexA(window.getComputedStyle(element).backgroundColor);
 	const spanCopy = (bg) => {
-		const msg = document.getElementById("hover-tooltip-copymsg")
-		clearTimeout(timeout)
-
-		navigator.clipboard.writeText(bg)
-		msg.textContent = `Copied ${bg} !`
-		
-		timeout = setTimeout(() => msg.textContent = "", 3100)
-	}
-	const spans = [...document.querySelectorAll(`#color-table .mini-display span[class^="c"]`)]
-	  
+		const msg = document.getElementById('hover-tooltip-copymsg');
+		clearTimeout(timeout);
+		navigator.clipboard.writeText(bg);
+		msg.textContent = `Copied ${bg}!`;
+		timeout = setTimeout(() => { msg.textContent = ''; }, 3100);
+	};
+	const spans = [...document.querySelectorAll('#color-table .mini-display span.c')];
 	spans.forEach(span => {
-		span.addEventListener("mouseenter", (event) => { updateColorTableTooltip(getBG(span)) })
-		span.addEventListener("mouseleave", (event) => { updateColorTableTooltip(false) })
-		span.addEventListener("click", (event) => { spanCopy(getBG(span)) })
-	})
+		span.addEventListener('mouseenter', () => updateColorTableTooltip(getBG(span)));
+		span.addEventListener('mouseleave', () => updateColorTableTooltip(false));
+		span.addEventListener('click',      () => spanCopy(getBG(span)));
+	});
 }
 
 function updateColorTableTooltip(colorOrFalse) {
-	//const mainbody = document.getElementById("hover-tooltip")
-	const display = document.getElementById("hover-tooltip-display")
-	const inp = document.getElementById("hover-tooltip-hex")	
+	const display  = document.getElementById('hover-tooltip-display');
+	const inp      = document.getElementById('hover-tooltip-hex');
 	if (colorOrFalse) {
-		display.style.backgroundColor = colorOrFalse
-		inp.textContent = colorOrFalse
+		display.style.backgroundColor = colorOrFalse;
+		inp.textContent = colorOrFalse;
 	} else {
-		display.style.backgroundColor = "transparent"
-		inp.innerHTML = "<span style=\"opacity:0.5;\">&#x2014;</span>"
+		display.style.backgroundColor = 'transparent';
+		inp.innerHTML = `<span style="opacity:0.5">&#x2014;</span>`;
 	}
 }
 
-// 2-way-binding for rgba and hsla
-
-/**
- * register colorPicker.color updater
- * that updates colorPicker.color with setChannel
- * whenever one of the sharedClass inputs changes
- * @param {string[]} idArr array of id's to input elements
- * @param {string[]} keyArr keys / array keys of the channel (in order of inputs) to be updated
- * @param {string} channel "hsla", "rgba" etc.
- */
+// ─── 2-way-binding for rgba and hsla ─────────────────────────────────────────
 function registerColorPickerUpdater(idArr, keyArr, channel) {
-	const inputs = idArr.map(id => document.getElementById(id))
-
+	const inputs = idArr.map(id => document.getElementById(id));
 	for (let i = 0; i < inputs.length; i++) {
 		const input = inputs[i];
-		
 		input.onchange = (e) => {
-			//console.log(e.target, e.target.value, keyArr[i])
-			colorPicker.color.setChannel(channel, keyArr[i], e.target.value)
-			generateColorTable()
-		}
+			colorPicker.color.setChannel(channel, keyArr[i], e.target.value);
+			generateColorTable();
+		};
 		input.onwheel = (e) => {
-			const value = Number(e.target.value)
+			const value = Number(e.target.value);
 			const direction = e.deltaY > 0 ? -1 : 1;
 			let increment = e.ctrlKey ? 10 : e.shiftKey ? 5 : 1;
-			if (idArr[i].endsWith("_a")) increment = e.ctrlKey ? 0.10 : e.shiftKey ? 0.01 : 0.05;
-			if (e.ctrlKey) e.preventDefault()
-			colorPicker.color.setChannel(channel, keyArr[i], precisionRound(value + (increment * direction)))
-		}
+			if (idArr[i].endsWith('a')) increment = e.ctrlKey ? 0.10 : e.shiftKey ? 0.01 : 0.05;
+			if (e.ctrlKey) e.preventDefault();
+			colorPicker.color.setChannel(channel, keyArr[i], precisionRound(value + increment * direction));
+		};
 	}
 }
 
-/**
- * update all HTMLInputElements from idArr with values from valueArr
- * recommended to hook up to a colorPicker.on(["color:init", "color:change"], f) listener
- * and feed the valueArr from the color parameter
- * @param {string[]} idArr array of id's to input elements
- * @param {string[]} valueArr values (in order of inputs) to be assigned to inputs
- * @param {boolean} showAlpha show or hide alpha inputs & alpha text
- * @param {string} pickerPrefix "hsl", "rgb" etc. id's have to be c_(pickerPrefix)_(whatever)
- */
 function updateInputElements(idArr, valueArr, showAlpha, pickerPrefix) {
-	const inputs = idArr.map(id => document.getElementById(id))
-
+	const inputs = idArr.map(id => document.getElementById(id));
 	for (let i = 0; i < inputs.length; i++) {
-		const input = inputs[i];
-		input.value = valueArr[i]
+		inputs[i].value = valueArr[i];
 	}
-
 	if (showAlpha) {
-		document.getElementById(`t_${pickerPrefix}`).textContent = `${pickerPrefix}a(`
-		document.getElementById(`c_${pickerPrefix}_a_hold`).classList.remove("hide")
-		document.getElementById(`c_${pickerPrefix}_end`).classList.add("hide")
-		document.getElementById("values").classList.add("alpha-shown")
+		document.getElementById(`t${pickerPrefix}`).textContent = `${pickerPrefix}a`;
+		document.getElementById(`c${pickerPrefix}ahold`).classList.remove('hide');
+		document.getElementById(`c${pickerPrefix}end`).classList.add('hide');
+		document.getElementById('values').classList.add('alpha-shown');
 	} else {
-		document.getElementById(`t_${pickerPrefix}`).textContent = `${pickerPrefix}(`
-		document.getElementById(`c_${pickerPrefix}_a_hold`).classList.add("hide")
-		document.getElementById(`c_${pickerPrefix}_end`).classList.remove("hide")
-		document.getElementById("values").classList.remove("alpha-shown")
+		document.getElementById(`t${pickerPrefix}`).textContent = pickerPrefix;
+		document.getElementById(`c${pickerPrefix}ahold`).classList.add('hide');
+		document.getElementById(`c${pickerPrefix}end`).classList.remove('hide');
+		document.getElementById('values').classList.remove('alpha-shown');
 	}
 }
 
-// eyeDropper
+// ─── eyeDropper ───────────────────────────────────────────────────────────────
 function getColor() {
 	eyeDropper
-		.open()
-		.then(result => { handleResult(result) })
-		.catch(error => console.error(error));
-};
+	.open()
+	.then(result => handleResult(result))
+	.catch(error => console.error(error));
+}
 
 function handleResult(result) {
-	console.log(result)
 	navigator.clipboard.writeText(result.sRGBHex);
-
-	colorPicker.color.set(result.sRGBHex)
-	generateColorTable()
+	colorPicker.color.set(result.sRGBHex);
+	generateColorTable();
 }
 
 async function handlePaste() {
-	console.log('pasting')
-	const input = document.getElementById("c_hex")
-	const prevValue = input.value
-	const prevColor = colorPicker.color.hex8String
+	const input = document.getElementById('chex');
+	const prevValue = input.value;
+	const prevColor = colorPicker.color.hex8String;
+	input.value = '';
+	input.focus();
+	document.execCommand('paste');
 
-	input.value = ""
-	input.focus()
-	// i tired really hard to use navigator.clipboard API here but i don't know how to handle permission clipboardWrite state of "prompt"
-	document.execCommand("paste")
-	colorPicker.color.set(input.value)
-	input.blur()
-
-	if (colorPicker.color.hex8String === prevColor) {
-		input.value = prevValue
+	const pastedOklch = parseOklchString(input.value);
+	if (pastedOklch) {
+		const { r, g, b } = oklchToRgb255(pastedOklch);
+		colorPicker.color.set(`rgb(${r}, ${g}, ${b})`);
+		input.blur();
+		return;
 	}
+
+	colorPicker.color.set(input.value);
+	input.blur();
+	if (colorPicker.color.hex8String === prevColor) input.value = prevValue;
 }
 
-// paste handling
-document.getElementById("paste_hex").addEventListener("click", handlePaste)
-document.addEventListener("DOMContentLoaded", handlePaste)
+document.getElementById('pastehex').addEventListener('click', handlePaste);

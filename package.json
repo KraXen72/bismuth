@@ -16,6 +16,7 @@
     "esbuild": "^0.21.5"
   },
   "dependencies": {
-    "@jaames/iro": "^5.5.2"
+    "@jaames/iro": "^5.5.2",
+    "culori": "^4.0.2"
   }
 }
