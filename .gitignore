@@ -4,3 +4,4 @@
 *.pem
 node_modules
 /repomix-output.xml
+/.pnpm-store/v11
