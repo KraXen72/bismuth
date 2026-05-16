@@ -1,49 +1,8 @@
 import iro from '@jaames/iro';
-import { converter, clampChroma, formatHex } from 'culori';
-// import 'eyedropper-polyfill';
+import { converter, formatHex, parse } from 'culori';
 
 const toOklch = converter('oklch');
 const toRgb   = converter('rgb');
-
-// { l: number, c: number, h: number }  (h can be undefined/NaN for achromatic; treat as 0)
-let oklchState = { l: 0.5, c: 0.1, h: 200 };
-
-// ---- Tab state ----
-// 'picker' | 'table' | 'oklch'
-let activeTab = 'picker';
-
-function switchTab(newTab) {
-	if (newTab === activeTab) return;
-	const prev = activeTab;
-	activeTab = newTab;
-
-	document.querySelector(`.tab-btn[data-tab="${prev}"]`).classList.remove('active');
-	document.querySelector(`.tab-btn[data-tab="${newTab}"]`).classList.add('active');
-	document.getElementById(`tab-${prev}`).classList.add('hide');
-	document.getElementById(`tab-${newTab}`).classList.remove('hide');
-
-	if (newTab === 'table') onTableTabActivated();
-	if (newTab === 'oklch') onOklchTabActivated();
-	if (newTab === 'picker' && prev === 'oklch') onPickerTabActivatedFromOklch();
-}
-
-function onTableTabActivated() {
-	generateColorTable();
-}
-
-function onOklchTabActivated() {
-	// Sync from iro picker -> OKLCH inputs
-	syncPickerToOklch();
-}
-
-function onPickerTabActivatedFromOklch() {
-	// Sync from OKLCH inputs -> iro picker
-	syncOklchToPicker();
-}
-
-document.querySelectorAll('.tab-btn').forEach(btn => {
-	btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-});
 
 const iroSize = 225
 const componentOpts = {
@@ -57,9 +16,8 @@ function randomNumberBetween(min, max) {
 
 /**
  * Math.round but behaves correctly when rounding floating point numbers
- * it does this by first converting the numbers to integers, rounding them and then dividing them back to floating points.
  * @param {number} number number to round
- * @param {number} precision the decimal points precision. default it 2
+ * @param {number} precision the decimal points precision. default is 2
  * @returns {number} the rounded number with correct decimal points
  */
 function precisionRound(number, precision = 2) {
@@ -97,10 +55,44 @@ function RGBAToHexA(rgba, forceRemoveAlpha = false) {
 	  .map((number, index) => index === 3 ? Math.round(number * 255) : number) // Converts alpha to 255 number
 	  .map(number => number.toString(16)) // Converts numbers to hex
 	  .map(string => string.length === 1 ? "0" + string : string) // Adds 0 when length of one number is 1
-	  .join("") // Puts the array to togehter to a string
+	  .join("") // Puts the array together to a string
 }
 
-// color table utils
+// ---- Tab state ----
+let activeTab = 'picker';
+
+function switchTab(newTab) {
+	if (newTab === activeTab) return;
+	const prev = activeTab;
+	activeTab = newTab;
+
+	document.querySelector(`.tab-btn[data-tab="${prev}"]`).classList.remove('active');
+	document.querySelector(`.tab-btn[data-tab="${newTab}"]`).classList.add('active');
+	document.getElementById(`tab-${prev}`).classList.add('hide');
+	document.getElementById(`tab-${newTab}`).classList.remove('hide');
+
+	if (newTab === 'table') onTableTabActivated();
+	if (newTab === 'oklch') onOklchTabActivated();
+	if (newTab === 'picker' && prev === 'oklch') onPickerTabActivatedFromOklch();
+}
+
+function onTableTabActivated() {
+	generateColorTable();
+}
+
+function onOklchTabActivated() {
+	syncPickerToOklch();
+}
+
+function onPickerTabActivatedFromOklch() {
+	syncOklchToPicker();
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+	btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+// color table utils — only updates CSS vars, no DOM show/hide
 function generateColorTable() {
 	const hsla = colorPicker.color.hsla
 
@@ -131,13 +123,12 @@ if (eyeDropperSupport) {
 }
 
 const colorPicker = new iro.ColorPicker('#picker', {
-	// sliders: can be 'hue', 'saturation', 'value', 'red', 'green', 'blue', 'alpha' or 'kelvin'
 	width: 300,
 	display: "grid",
 	margin: 0,
 	boxHeight: iroSize,
 	handleRadius: 6,
-	color: startColors[randomNumberBetween(0, 19)] /*"#a57562"*/,
+	color: startColors[randomNumberBetween(0, 19)],
 	layout: [
 		{ component: iro.ui.Slider, options: { sliderType: 'alpha', ...componentOpts } },
 		{ component: iro.ui.Slider, options: { sliderType: 'hue', ...componentOpts } },
@@ -146,6 +137,9 @@ const colorPicker = new iro.ColorPicker('#picker', {
 		{ component: iro.ui.Slider, options: { sliderType: 'saturation', width: iroSize } }
 	]
 });
+
+// ---- OKLCH state ----
+let oklchState = { l: 0.5, c: 0.1, h: 200 };
 
 function syncPickerToOklch() {
 	const hex = colorPicker.color.hexString; // always 6-char hex from iro
@@ -160,17 +154,21 @@ function syncPickerToOklch() {
 }
 
 function syncOklchToPicker() {
+	const prevAlpha = colorPicker.color.alpha;
 	const rgb = toRgb({ mode: 'oklch', ...oklchState });
-	// clamp to sRGB
 	const clamped = {
-		r: Math.max(0, Math.min(1, rgb.r ?? 0)),
-		g: Math.max(0, Math.min(1, rgb.g ?? 0)),
-		b: Math.max(0, Math.min(1, rgb.b ?? 0)),
+		r: Math.max(0, Math.min(1, rgb?.r ?? 0)),
+		g: Math.max(0, Math.min(1, rgb?.g ?? 0)),
+		b: Math.max(0, Math.min(1, rgb?.b ?? 0)),
 	};
 	const hex = '#' + [clamped.r, clamped.g, clamped.b]
 		.map(v => Math.round(v * 255).toString(16).padStart(2, '0'))
 		.join('');
 	colorPicker.color.set(hex);
+	// preserve alpha
+	if (prevAlpha < 1) {
+		colorPicker.color.setChannel('hsla', 'a', prevAlpha);
+	}
 }
 
 function renderOklchInputs() {
@@ -216,12 +214,67 @@ function wireOklchChannel(channel, numId, rangeId) {
 		const dir  = e.deltaY > 0 ? -1 : 1;
 		update(oklchState[channel] + step * dir);
 	});
-	rangeEl.addEventListener('input',  e => update(e.target.value));
+	rangeEl.addEventListener('input', e => update(e.target.value));
 }
 
 wireOklchChannel('l', 'oklch-l', 'oklch-l-range');
 wireOklchChannel('c', 'oklch-c', 'oklch-c-range');
 wireOklchChannel('h', 'oklch-h', 'oklch-h-range');
+
+// ---- Paste handling with culori ----
+function applyPastedColor(raw) {
+	const trimmed = raw.trim();
+	if (!trimmed) return;
+
+	const parsed = parse(trimmed);
+	if (!parsed) return;
+
+	if (parsed.mode === 'oklch') {
+		oklchState = { l: parsed.l ?? 0, c: parsed.c ?? 0, h: parsed.h ?? 0 };
+		switchTab('oklch');
+		renderOklchInputs();
+		renderOklchPreview();
+		return;
+	}
+
+	if (parsed.mode === 'oklab') {
+		const asOklch = toOklch(parsed);
+		oklchState = { l: asOklch.l ?? 0, c: asOklch.c ?? 0, h: asOklch.h ?? 0 };
+		switchTab('oklch');
+		renderOklchInputs();
+		renderOklchPreview();
+		return;
+	}
+
+	// All other formats: convert to hex, set on iro picker, switch to Picker tab
+	const hex = formatHex(parsed);
+	if (!hex) return;
+	colorPicker.color.set(hex);
+	switchTab('picker');
+}
+
+async function handlePaste() {
+	const input = document.getElementById("c_hex")
+	const prevValue = input.value
+
+	input.value = ""
+	input.focus()
+	document.execCommand("paste")
+	const pasted = input.value
+	input.blur()
+
+	if (!pasted) {
+		input.value = prevValue;
+		return;
+	}
+
+	applyPastedColor(pasted);
+
+	// if we ended up on a non-picker tab, hex input isn't relevant — restore it
+	if (activeTab !== 'picker') {
+		input.value = prevValue;
+	}
+}
 
 const buttonProps = {
 	classList: "btn clean", 
@@ -255,16 +308,12 @@ registerColorPickerUpdater(["c_rgb_r", "c_rgb_g", "c_rgb_b", "c_rgb_a"],
 	['r', 'g', 'b', 'a'], "rgba")
 	
 registerColorPickerUpdater(["c_hsl_h", "c_hsl_s", "c_hsl_l", "c_hsl_a"],
-	['h', 's', 'l', 'a'], "hsla",)
+	['h', 's', 'l', 'a'], "hsla")
 
 colorPicker.on(["color:init", "color:change"], function (color) {
-	// Show the current color in different formats
-	// Using the selected color: https://iro.js.org/guide.html#selected-color-api
 	const a = color.alpha < 1
 
 	inpHex.value = a ? color.hex8String : color.hexString
-	// inpRgb.value = a ? color.rgbaString : color.rgbString
-	// inpHsl.value = a ? color.hslaString : color.hslString
 	updateInputElements(["c_rgb_r", "c_rgb_g", "c_rgb_b", "c_rgb_a"],
 		[color.red, color.green, color.blue, color.alpha], a, "rgb")
 	
@@ -273,16 +322,20 @@ colorPicker.on(["color:init", "color:change"], function (color) {
 
 	display.style.background = a ? color.hex8String : color.hexString
 });
+
 colorPicker.on('color:init', () => {
-	syncPickerToOklch(); // prime oklchState from initial color
+	syncPickerToOklch();
 });
+
 colorPicker.on("input:start", () => {
 	if ("activeElement" in document) document.activeElement.blur();
 })
 
 registerHoverOnColorSpans()
 
-//other colors
+// paste handling
+document.getElementById("paste_hex").addEventListener("click", handlePaste)
+document.addEventListener("DOMContentLoaded", handlePaste)
 
 function registerHoverOnColorSpans() {
 	let timeout;
@@ -306,7 +359,6 @@ function registerHoverOnColorSpans() {
 }
 
 function updateColorTableTooltip(colorOrFalse) {
-	//const mainbody = document.getElementById("hover-tooltip")
 	const display = document.getElementById("hover-tooltip-display")
 	const inp = document.getElementById("hover-tooltip-hex")	
 	if (colorOrFalse) {
@@ -318,14 +370,10 @@ function updateColorTableTooltip(colorOrFalse) {
 	}
 }
 
-// 2-way-binding for rgba and hsla
-
 /**
- * register colorPicker.color updater
- * that updates colorPicker.color with setChannel
- * whenever one of the sharedClass inputs changes
+ * register colorPicker.color updater via setChannel
  * @param {string[]} idArr array of id's to input elements
- * @param {string[]} keyArr keys / array keys of the channel (in order of inputs) to be updated
+ * @param {string[]} keyArr keys of the channel (in order of inputs) to be updated
  * @param {string} channel "hsla", "rgba" etc.
  */
 function registerColorPickerUpdater(idArr, keyArr, channel) {
@@ -335,7 +383,6 @@ function registerColorPickerUpdater(idArr, keyArr, channel) {
 		const input = inputs[i];
 		
 		input.onchange = (e) => {
-			//console.log(e.target, e.target.value, keyArr[i])
 			colorPicker.color.setChannel(channel, keyArr[i], e.target.value)
 		}
 		input.onwheel = (e) => {
@@ -351,12 +398,10 @@ function registerColorPickerUpdater(idArr, keyArr, channel) {
 
 /**
  * update all HTMLInputElements from idArr with values from valueArr
- * recommended to hook up to a colorPicker.on(["color:init", "color:change"], f) listener
- * and feed the valueArr from the color parameter
  * @param {string[]} idArr array of id's to input elements
  * @param {string[]} valueArr values (in order of inputs) to be assigned to inputs
  * @param {boolean} showAlpha show or hide alpha inputs & alpha text
- * @param {string} pickerPrefix "hsl", "rgb" etc. id's have to be c_(pickerPrefix)_(whatever)
+ * @param {string} pickerPrefix "hsl", "rgb" etc.
  */
 function updateInputElements(idArr, valueArr, showAlpha, pickerPrefix) {
 	const inputs = idArr.map(id => document.getElementById(id))
@@ -388,30 +433,6 @@ function getColor() {
 };
 
 function handleResult(result) {
-	console.log(result)
 	navigator.clipboard.writeText(result.sRGBHex);
-
 	colorPicker.color.set(result.sRGBHex)
 }
-
-async function handlePaste() {
-	console.log('pasting')
-	const input = document.getElementById("c_hex")
-	const prevValue = input.value
-	const prevColor = colorPicker.color.hex8String
-
-	input.value = ""
-	input.focus()
-	// i tired really hard to use navigator.clipboard API here but i don't know how to handle permission clipboardWrite state of "prompt"
-	document.execCommand("paste")
-	colorPicker.color.set(input.value)
-	input.blur()
-
-	if (colorPicker.color.hex8String === prevColor) {
-		input.value = prevValue
-	}
-}
-
-// paste handling
-document.getElementById("paste_hex").addEventListener("click", handlePaste)
-document.addEventListener("DOMContentLoaded", handlePaste)
