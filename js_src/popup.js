@@ -1,6 +1,12 @@
 import iro from '@jaames/iro';
-import { converter, formatHex } from 'culori';
+import { converter, clampChroma, formatHex } from 'culori';
 // import 'eyedropper-polyfill';
+
+const toOklch = converter('oklch');
+const toRgb   = converter('rgb');
+
+// { l: number, c: number, h: number }  (h can be undefined/NaN for achromatic; treat as 0)
+let oklchState = { l: 0.5, c: 0.1, h: 200 };
 
 // ---- Tab state ----
 // 'picker' | 'table' | 'oklch'
@@ -141,72 +147,81 @@ const colorPicker = new iro.ColorPicker('#picker', {
 	]
 });
 
-const toOklch = converter('oklch');
-const toRgb = converter('rgb');
-const oklchInputs = {
-	l: document.getElementById('oklch-l'),
-	c: document.getElementById('oklch-c'),
-	h: document.getElementById('oklch-h'),
-	lRange: document.getElementById('oklch-l-range'),
-	cRange: document.getElementById('oklch-c-range'),
-	hRange: document.getElementById('oklch-h-range'),
-	preview: document.getElementById('oklch-preview'),
-	lWrap: document.getElementById('oklch-l-wrap'),
-	cWrap: document.getElementById('oklch-c-wrap'),
-	hWrap: document.getElementById('oklch-h-wrap'),
-};
-
-function getOklchFromInputs() {
-	return {
-		mode: 'oklch',
-		l: Number(oklchInputs.l.value),
-		c: Number(oklchInputs.c.value),
-		h: Number(oklchInputs.h.value) || 0,
-	};
-}
-
-function oklchToHex(oklch) {
-	return formatHex(toRgb(oklch));
-}
-
-function updateOklchPreviewAndGradients() {
-	const oklch = getOklchFromInputs();
-	const currentHex = oklchToHex(oklch);
-	oklchInputs.preview.style.backgroundColor = currentHex;
-
-	oklchInputs.lWrap.style.background = `linear-gradient(to right, ${oklchToHex({ ...oklch, l: 0 })}, ${oklchToHex({ ...oklch, l: 1 })})`;
-	oklchInputs.cWrap.style.background = `linear-gradient(to right, ${oklchToHex({ ...oklch, c: 0 })}, ${oklchToHex({ ...oklch, c: 0.4 })})`;
-	oklchInputs.hWrap.style.background = `linear-gradient(to right, ${[0, 60, 120, 180, 240, 300, 360].map(h => oklchToHex({ ...oklch, h })).join(', ')})`;
-}
-
 function syncPickerToOklch() {
-	const oklch = toOklch(colorPicker.color.hexString);
-	const l = precisionRound(oklch.l || 0, 3);
-	const c = precisionRound(oklch.c || 0, 3);
-	const h = precisionRound(oklch.h || 0, 1);
-
-	oklchInputs.l.value = oklchInputs.lRange.value = l;
-	oklchInputs.c.value = oklchInputs.cRange.value = c;
-	oklchInputs.h.value = oklchInputs.hRange.value = h;
-	updateOklchPreviewAndGradients();
+	const hex = colorPicker.color.hexString; // always 6-char hex from iro
+	const oklch = toOklch(hex);
+	oklchState = {
+		l: oklch.l ?? 0,
+		c: oklch.c ?? 0,
+		h: oklch.h ?? 0,
+	};
+	renderOklchInputs();
+	renderOklchPreview();
 }
 
 function syncOklchToPicker() {
-	colorPicker.color.set(oklchToHex(getOklchFromInputs()));
-}
-
-function registerOklchInputPair(numberInput, rangeInput) {
-	const syncPair = (source, target) => {
-		target.value = source.value;
-		updateOklchPreviewAndGradients();
+	const rgb = toRgb({ mode: 'oklch', ...oklchState });
+	// clamp to sRGB
+	const clamped = {
+		r: Math.max(0, Math.min(1, rgb.r ?? 0)),
+		g: Math.max(0, Math.min(1, rgb.g ?? 0)),
+		b: Math.max(0, Math.min(1, rgb.b ?? 0)),
 	};
-	numberInput.addEventListener('input', () => syncPair(numberInput, rangeInput));
-	rangeInput.addEventListener('input', () => syncPair(rangeInput, numberInput));
+	const hex = '#' + [clamped.r, clamped.g, clamped.b]
+		.map(v => Math.round(v * 255).toString(16).padStart(2, '0'))
+		.join('');
+	colorPicker.color.set(hex);
 }
 
-registerOklchInputPair(oklchInputs.l, oklchInputs.lRange);
-registerOklchInputPair(oklchInputs.c, oklchInputs.cRange);
-registerOklchInputPair(oklchInputs.h, oklchInputs.hRange);
+function renderOklchInputs() {
+	document.getElementById('oklch-l').value = oklchState.l.toFixed(3);
+	document.getElementById('oklch-c').value = oklchState.c.toFixed(3);
+	document.getElementById('oklch-h').value = (oklchState.h ?? 0).toFixed(1);
+
+	document.getElementById('oklch-l-range').value = oklchState.l;
+	document.getElementById('oklch-c-range').value = oklchState.c;
+	document.getElementById('oklch-h-range').value = oklchState.h ?? 0;
+}
+
+function renderOklchPreview() {
+	const rgb = toRgb({ mode: 'oklch', ...oklchState });
+	const clamped = {
+		r: Math.max(0, Math.min(1, rgb?.r ?? 0)),
+		g: Math.max(0, Math.min(1, rgb?.g ?? 0)),
+		b: Math.max(0, Math.min(1, rgb?.b ?? 0)),
+	};
+	const hex = '#' + [clamped.r, clamped.g, clamped.b]
+		.map(v => Math.round(v * 255).toString(16).padStart(2, '0'))
+		.join('');
+	document.getElementById('oklch-preview').style.backgroundColor = hex;
+}
+
+function wireOklchChannel(channel, numId, rangeId) {
+	const numEl   = document.getElementById(numId);
+	const rangeEl = document.getElementById(rangeId);
+
+	function update(val) {
+		const parsed = parseFloat(val);
+		if (isNaN(parsed)) return;
+		oklchState = { ...oklchState, [channel]: parsed };
+		numEl.value   = parsed.toFixed(channel === 'h' ? 1 : 3);
+		rangeEl.value = parsed;
+		renderOklchPreview();
+	}
+
+	numEl.addEventListener('change',  e => update(e.target.value));
+	numEl.addEventListener('wheel', e => {
+		e.preventDefault();
+		const step = channel === 'h' ? 1 : 0.005;
+		const dir  = e.deltaY > 0 ? -1 : 1;
+		update(oklchState[channel] + step * dir);
+	});
+	rangeEl.addEventListener('input',  e => update(e.target.value));
+}
+
+wireOklchChannel('l', 'oklch-l', 'oklch-l-range');
+wireOklchChannel('c', 'oklch-c', 'oklch-c-range');
+wireOklchChannel('h', 'oklch-h', 'oklch-h-range');
 
 const buttonProps = {
 	classList: "btn clean", 
@@ -257,6 +272,9 @@ colorPicker.on(["color:init", "color:change"], function (color) {
 		[color.hsla.h, color.hsla.s, color.hsla.l, color.hsla.a], a, "hsl")
 
 	display.style.background = a ? color.hex8String : color.hexString
+});
+colorPicker.on('color:init', () => {
+	syncPickerToOklch(); // prime oklchState from initial color
 });
 colorPicker.on("input:start", () => {
 	if ("activeElement" in document) document.activeElement.blur();
