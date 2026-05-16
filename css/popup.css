@@ -174,7 +174,7 @@ body {
 	grid-template-columns: min-content minmax(18px, min-content) 1fr;
 
 	row-gap: var(--valgap);
-	column-gap: var(--valgap)
+	column-gap: var(--valgap);
 }
 #values.alpha-shown {
 	column-gap: calc(var(--valgap)/2);
@@ -256,7 +256,7 @@ input.code#c_hex {
 }
 
 .valspan #c_rgb_a_hold,
-.valspan c_hsl_a_hold {
+.valspan #c_hsl_a_hold {
 	width: max-content;
 }
 
@@ -408,25 +408,33 @@ input.code#c_hex {
 
 .oklch-row {
 	display: grid;
-	grid-template-columns: min-content 1fr;
-	gap: 8px;
+	grid-template-columns: max-content min-content 1fr;
+	gap: var(--valgap);
 	align-items: center;
 	margin-bottom: 6px;
 }
 
+/* "chroma" is the longest label — em width keeps all labels the same */
+.oklch-label {
+	font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+	font-size: 1rem;
+	min-width: 4.5em;
+	line-height: 1.75;
+}
+
 .oklch-num {
+	min-width: 38px;
 	width: 62px;
 }
 
 .oklch-slider-wrap {
 	border-radius: 5px;
 	border: 2px solid var(--border-color);
-	background: linear-gradient(to right, #000, #fff);
+	/* background set per-channel via inline style in JS */
 	padding: 2px 4px;
 	display: flex;
 	align-items: center;
 }
-
 .oklch-slider-wrap input[type="range"] {
 	width: 100%;
 	background: transparent;
