@@ -2,7 +2,7 @@ import iro from '@jaames/iro';
 import { converter, formatHex, parse } from 'culori';
 
 const toOklch = converter('oklch');
-const toRgb   = converter('rgb');
+const toRgb = converter('rgb');
 
 const iroSize = 225
 const componentOpts = {
@@ -49,13 +49,13 @@ function alphaAwareCopyCol(type) {
 
 function RGBAToHexA(rgba, forceRemoveAlpha = false) {
 	return "#" + rgba.replace(/^rgba?\(|\s+|\)$/g, '') // Get's rgba / rgb string values
-	  .split(',') // splits them at ","
-	  .filter((string, index) => !forceRemoveAlpha || index !== 3)
-	  .map(string => parseFloat(string)) // Converts them to numbers
-	  .map((number, index) => index === 3 ? Math.round(number * 255) : number) // Converts alpha to 255 number
-	  .map(number => number.toString(16)) // Converts numbers to hex
-	  .map(string => string.length === 1 ? "0" + string : string) // Adds 0 when length of one number is 1
-	  .join("") // Puts the array together to a string
+		.split(',') // splits them at ","
+		.filter((string, index) => !forceRemoveAlpha || index !== 3)
+		.map(string => parseFloat(string)) // Converts them to numbers
+		.map((number, index) => index === 3 ? Math.round(number * 255) : number) // Converts alpha to 255 number
+		.map(number => number.toString(16)) // Converts numbers to hex
+		.map(string => string.length === 1 ? "0" + string : string) // Adds 0 when length of one number is 1
+		.join("") // Puts the array together to a string
 }
 
 // ---- Tab state ----
@@ -195,23 +195,23 @@ function renderOklchPreview() {
 }
 
 function wireOklchChannel(channel, numId, rangeId) {
-	const numEl   = document.getElementById(numId);
+	const numEl = document.getElementById(numId);
 	const rangeEl = document.getElementById(rangeId);
 
 	function update(val) {
 		const parsed = parseFloat(val);
 		if (isNaN(parsed)) return;
 		oklchState = { ...oklchState, [channel]: parsed };
-		numEl.value   = parsed.toFixed(channel === 'h' ? 1 : 3);
+		numEl.value = parsed.toFixed(channel === 'h' ? 1 : 3);
 		rangeEl.value = parsed;
 		renderOklchPreview();
 	}
 
-	numEl.addEventListener('change',  e => update(e.target.value));
+	numEl.addEventListener('change', e => update(e.target.value));
 	numEl.addEventListener('wheel', e => {
 		e.preventDefault();
 		const step = channel === 'h' ? 1 : 0.005;
-		const dir  = e.deltaY > 0 ? -1 : 1;
+		const dir = e.deltaY > 0 ? -1 : 1;
 		update(oklchState[channel] + step * dir);
 	});
 	rangeEl.addEventListener('input', e => update(e.target.value));
@@ -277,7 +277,7 @@ async function handlePaste() {
 }
 
 const buttonProps = {
-	classList: "btn clean", 
+	classList: "btn clean",
 	id: "get-color-btn",
 }
 const noSupport = "eyeDropper API is not supported.\nUpdate to Chrome 95/Opera 81 or newer"
@@ -306,7 +306,7 @@ inpHex.onchange = (e) => { colorPicker.color.set(e.target.value); }
 
 registerColorPickerUpdater(["c_rgb_r", "c_rgb_g", "c_rgb_b", "c_rgb_a"],
 	['r', 'g', 'b', 'a'], "rgba")
-	
+
 registerColorPickerUpdater(["c_hsl_h", "c_hsl_s", "c_hsl_l", "c_hsl_a"],
 	['h', 's', 'l', 'a'], "hsla")
 
@@ -316,7 +316,7 @@ colorPicker.on(["color:init", "color:change"], function (color) {
 	inpHex.value = a ? color.hex8String : color.hexString
 	updateInputElements(["c_rgb_r", "c_rgb_g", "c_rgb_b", "c_rgb_a"],
 		[color.red, color.green, color.blue, color.alpha], a, "rgb")
-	
+
 	updateInputElements(["c_hsl_h", "c_hsl_s", "c_hsl_l", "c_hsl_a"],
 		[color.hsla.h, color.hsla.s, color.hsla.l, color.hsla.a], a, "hsl")
 
@@ -346,11 +346,11 @@ function registerHoverOnColorSpans() {
 
 		navigator.clipboard.writeText(bg)
 		msg.textContent = `Copied ${bg} !`
-		
+
 		timeout = setTimeout(() => msg.textContent = "", 3100)
 	}
 	const spans = [...document.querySelectorAll(`#color-table .mini-display span[class^="c"]`)]
-	  
+
 	spans.forEach(span => {
 		span.addEventListener("mouseenter", (event) => { updateColorTableTooltip(getBG(span)) })
 		span.addEventListener("mouseleave", (event) => { updateColorTableTooltip(false) })
@@ -360,7 +360,7 @@ function registerHoverOnColorSpans() {
 
 function updateColorTableTooltip(colorOrFalse) {
 	const display = document.getElementById("hover-tooltip-display")
-	const inp = document.getElementById("hover-tooltip-hex")	
+	const inp = document.getElementById("hover-tooltip-hex")
 	if (colorOrFalse) {
 		display.style.backgroundColor = colorOrFalse
 		inp.textContent = colorOrFalse
@@ -381,7 +381,7 @@ function registerColorPickerUpdater(idArr, keyArr, channel) {
 
 	for (let i = 0; i < inputs.length; i++) {
 		const input = inputs[i];
-		
+
 		input.onchange = (e) => {
 			colorPicker.color.setChannel(channel, keyArr[i], e.target.value)
 		}

@@ -34,7 +34,9 @@ html,
 	--tetradic2: hsla(calc(var(--h) + 180deg), var(--s), var(--l), var(--a));
 	--tetradic3: hsla(calc(var(--h) - 90deg), var(--s), var(--l), var(--a));
 }
-.hide { display: none !important; }
+.hide {
+	display: none !important;
+}
 
 .valspan,
 .valspan .val-label,
@@ -93,8 +95,12 @@ body {
 }
 
 /* Tab panels */
-.tab-panel { display: block; }
-.tab-panel.hide { display: none !important; }
+.tab-panel {
+	display: block;
+}
+.tab-panel.hide {
+	display: none !important;
+}
 
 /* picker */
 #picker .IroColorPicker {
@@ -126,7 +132,8 @@ body {
 }
 
 /* displays */
-#display-hold, #hover-tooltip-display {
+#display-hold,
+#hover-tooltip-display {
 	border: 2px solid var(--border-color);
 	border-radius: 5px;
 	overflow: hidden;
@@ -135,13 +142,14 @@ body {
 #display-hold {
 	grid-row: 1/4;
 
-	display: grid; 
+	display: grid;
 	grid-template: 100% / 100%;
 
 	grid-column: 3;
 }
 
-#display, #display-hold { 
+#display,
+#display-hold {
 	width: 100%;
 	height: 100%;
 	box-sizing: border-box;
@@ -160,7 +168,7 @@ body {
 
 	display: grid;
 	grid-template-rows: repeat(var(--valc), min-content);
-	
+
 	/* 3 * 27.78 + 2 * 8 px: 27.78 inp-height width 8 spacing = 99.34px for perfect square*/
 	/* 2 * 27.78 + 1 * 8 px: 27.78 inp-height width 8 spacing = 63.56px for 2/3 of a square*/
 	grid-template-columns: min-content minmax(18px, min-content) 1fr;
@@ -197,13 +205,19 @@ body {
 	background-color: #545557;
 }
 
-#copy_hex { grid-row: 1 }
-#copy_rgb { grid-row: 2 }
-#copy_hsl { grid-row: 3 }
+#copy_hex {
+	grid-row: 1
+}
+#copy_rgb {
+	grid-row: 2
+}
+#copy_hsl {
+	grid-row: 3
+}
 
 #values .copy#paste_hex {
 	flex-grow: 0;
-	width: min-content; 
+	width: min-content;
 	border-top-left-radius: 0;
 	border-bottom-left-radius: 0;
 }
@@ -241,7 +255,8 @@ input.code#c_hex {
 	width: 48px;
 }
 
-.valspan #c_rgb_a_hold, .valspan c_hsl_a_hold {
+.valspan #c_rgb_a_hold,
+.valspan c_hsl_a_hold {
 	width: max-content;
 }
 
@@ -251,12 +266,12 @@ input.code#c_hex {
 
 	grid-template-rows: repeat(5, min-content);
 	grid-template-columns: repeat(2, 1fr);
-	grid-template-areas: 
-	"analog-text complement-text"
-	"analog complement"
-	"triadic-text tetradic-text"
-	"triadic tetradic"
-	"tooltip tooltip"; 
+	grid-template-areas:
+		"analog-text complement-text"
+		"analog complement"
+		"triadic-text tetradic-text"
+		"triadic tetradic"
+		"tooltip tooltip";
 
 	margin-top: 8px;
 	font-size: .8rem;
@@ -265,10 +280,18 @@ input.code#c_hex {
 	row-gap: calc(var(--valgap) / 2);
 	column-gap: var(--valgap);
 }
-#analog-t { grid-area: analog-text }
-#complement-t { grid-area: complement-text }
-#triadic-t { grid-area: triadic-text }
-#tetradic-t { grid-area: tetradic-text }
+#analog-t {
+	grid-area: analog-text
+}
+#complement-t {
+	grid-area: complement-text
+}
+#triadic-t {
+	grid-area: triadic-text
+}
+#tetradic-t {
+	grid-area: tetradic-text
+}
 #hover-tooltip {
 	grid-area: tooltip;
 }
@@ -304,17 +327,33 @@ input.code#c_hex {
 	color: white;
 }
 
-#analog .c1 { background-color: var(--analog1) }
-#analog .c2 { background-color: var(--analog2) }
+#analog .c1 {
+	background-color: var(--analog1)
+}
+#analog .c2 {
+	background-color: var(--analog2)
+}
 
-#complement .c1 { background-color: var(--complement) }
+#complement .c1 {
+	background-color: var(--complement)
+}
 
-#triadic .c1 { background-color: var(--triadic1) }
-#triadic .c2 { background-color: var(--triadic2) }
+#triadic .c1 {
+	background-color: var(--triadic1)
+}
+#triadic .c2 {
+	background-color: var(--triadic2)
+}
 
-#tetradic .c1 { background-color: var(--tetradic1) }
-#tetradic .c2 { background-color: var(--tetradic2) }
-#tetradic .c3 { background-color: var(--tetradic3) }
+#tetradic .c1 {
+	background-color: var(--tetradic1)
+}
+#tetradic .c2 {
+	background-color: var(--tetradic2)
+}
+#tetradic .c3 {
+	background-color: var(--tetradic3)
+}
 
 .clean {
 	cursor: pointer;
@@ -330,11 +369,12 @@ input.code#c_hex {
 	border: none;
 }
 
-.clean:hover { 
+.clean:hover {
 	background-color: #454545;
 }
 
-#hover-tooltip, .display-and-input {
+#hover-tooltip,
+.display-and-input {
 	display: flex;
 	gap: var(--valgap);
 	flex-wrap: nowrap;
@@ -343,14 +383,18 @@ input.code#c_hex {
 	flex-basis: 100%;
 	margin-top: var(--valgap);
 }
-.display-and-input, #hover-tooltip-copymsg { flex-grow: 1; width: 100%; }
-#hover-tooltip-hex { 
+.display-and-input,
+#hover-tooltip-copymsg {
+	flex-grow: 1;
 	width: 100%;
-	line-height: var(--slider-w); 
 }
-#hover-tooltip-copymsg { 
+#hover-tooltip-hex {
+	width: 100%;
+	line-height: var(--slider-w);
+}
+#hover-tooltip-copymsg {
 	text-align: right;
-	line-height: var(--slider-w); 
+	line-height: var(--slider-w);
 }
 
 /* OKLCH tab */
