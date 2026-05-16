@@ -408,7 +408,13 @@ input.code#c_hex {
 
 .oklch-row {
 	display: grid;
-	grid-template-columns: max-content min-content 1fr;
+	grid-template-rows: min-content min-content;
+	grid-template-columns: min-content 1fr;
+	grid-template-areas: 
+		"label label"
+		"input slider"
+	;
+
 	gap: var(--valgap);
 	align-items: center;
 	margin-bottom: 6px;
@@ -416,6 +422,7 @@ input.code#c_hex {
 
 /* "chroma" is the longest label — em width keeps all labels the same */
 .oklch-label {
+	grid-area: label;
 	font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
 	font-size: 1rem;
 	min-width: 4.5em;
@@ -423,11 +430,20 @@ input.code#c_hex {
 }
 
 .oklch-num {
+	grid-area: input;
 	min-width: 38px;
 	width: 62px;
+	-moz-appearance: textfield;
+}
+
+.oklch-num::-webkit-outer-spin-button,
+.oklch-num::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .oklch-slider-wrap {
+	grid-area: slider;
 	border-radius: 5px;
 	border: 2px solid var(--border-color);
 	/* background set per-channel via inline style in JS */
