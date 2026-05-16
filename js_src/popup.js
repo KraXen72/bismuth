@@ -1,5 +1,43 @@
 import iro from '@jaames/iro';
+import { converter, formatHex } from 'culori';
 // import 'eyedropper-polyfill';
+
+// ---- Tab state ----
+// 'picker' | 'table' | 'oklch'
+let activeTab = 'picker';
+
+function switchTab(newTab) {
+	if (newTab === activeTab) return;
+	const prev = activeTab;
+	activeTab = newTab;
+
+	document.querySelector(`.tab-btn[data-tab="${prev}"]`).classList.remove('active');
+	document.querySelector(`.tab-btn[data-tab="${newTab}"]`).classList.add('active');
+	document.getElementById(`tab-${prev}`).classList.add('hide');
+	document.getElementById(`tab-${newTab}`).classList.remove('hide');
+
+	if (newTab === 'table') onTableTabActivated();
+	if (newTab === 'oklch') onOklchTabActivated();
+	if (newTab === 'picker' && prev === 'oklch') onPickerTabActivatedFromOklch();
+}
+
+function onTableTabActivated() {
+	generateColorTable();
+}
+
+function onOklchTabActivated() {
+	// Sync from iro picker -> OKLCH inputs
+	syncPickerToOklch();
+}
+
+function onPickerTabActivatedFromOklch() {
+	// Sync from OKLCH inputs -> iro picker
+	syncOklchToPicker();
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+	btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
 
 const iroSize = 225
 const componentOpts = {
@@ -64,20 +102,6 @@ function generateColorTable() {
 	document.documentElement.style.setProperty('--s', `${hsla.s}%`);
 	document.documentElement.style.setProperty('--l', `${hsla.l}%`);
 	document.documentElement.style.setProperty('--a', `${hsla.a}`);
-
-	console.log(hsla)
-
-	document.getElementById("color-table").classList.remove("hide")
-	document.getElementById("generate-wrapper").classList.add("hide")
-}
-
-function hideColorTable(color) {
-	document.getElementById("color-table").classList.add("hide")
-	if (color.hsla.s > 5) {
-		document.getElementById("generate-wrapper").classList.remove("hide")
-	} else {
-		document.getElementById("generate-wrapper").classList.add("hide")
-	}
 }
 
 // fill up icons to elements
@@ -116,6 +140,73 @@ const colorPicker = new iro.ColorPicker('#picker', {
 		{ component: iro.ui.Slider, options: { sliderType: 'saturation', width: iroSize } }
 	]
 });
+
+const toOklch = converter('oklch');
+const toRgb = converter('rgb');
+const oklchInputs = {
+	l: document.getElementById('oklch-l'),
+	c: document.getElementById('oklch-c'),
+	h: document.getElementById('oklch-h'),
+	lRange: document.getElementById('oklch-l-range'),
+	cRange: document.getElementById('oklch-c-range'),
+	hRange: document.getElementById('oklch-h-range'),
+	preview: document.getElementById('oklch-preview'),
+	lWrap: document.getElementById('oklch-l-wrap'),
+	cWrap: document.getElementById('oklch-c-wrap'),
+	hWrap: document.getElementById('oklch-h-wrap'),
+};
+
+function getOklchFromInputs() {
+	return {
+		mode: 'oklch',
+		l: Number(oklchInputs.l.value),
+		c: Number(oklchInputs.c.value),
+		h: Number(oklchInputs.h.value) || 0,
+	};
+}
+
+function oklchToHex(oklch) {
+	return formatHex(toRgb(oklch));
+}
+
+function updateOklchPreviewAndGradients() {
+	const oklch = getOklchFromInputs();
+	const currentHex = oklchToHex(oklch);
+	oklchInputs.preview.style.backgroundColor = currentHex;
+
+	oklchInputs.lWrap.style.background = `linear-gradient(to right, ${oklchToHex({ ...oklch, l: 0 })}, ${oklchToHex({ ...oklch, l: 1 })})`;
+	oklchInputs.cWrap.style.background = `linear-gradient(to right, ${oklchToHex({ ...oklch, c: 0 })}, ${oklchToHex({ ...oklch, c: 0.4 })})`;
+	oklchInputs.hWrap.style.background = `linear-gradient(to right, ${[0, 60, 120, 180, 240, 300, 360].map(h => oklchToHex({ ...oklch, h })).join(', ')})`;
+}
+
+function syncPickerToOklch() {
+	const oklch = toOklch(colorPicker.color.hexString);
+	const l = precisionRound(oklch.l || 0, 3);
+	const c = precisionRound(oklch.c || 0, 3);
+	const h = precisionRound(oklch.h || 0, 1);
+
+	oklchInputs.l.value = oklchInputs.lRange.value = l;
+	oklchInputs.c.value = oklchInputs.cRange.value = c;
+	oklchInputs.h.value = oklchInputs.hRange.value = h;
+	updateOklchPreviewAndGradients();
+}
+
+function syncOklchToPicker() {
+	colorPicker.color.set(oklchToHex(getOklchFromInputs()));
+}
+
+function registerOklchInputPair(numberInput, rangeInput) {
+	const syncPair = (source, target) => {
+		target.value = source.value;
+		updateOklchPreviewAndGradients();
+	};
+	numberInput.addEventListener('input', () => syncPair(numberInput, rangeInput));
+	rangeInput.addEventListener('input', () => syncPair(rangeInput, numberInput));
+}
+
+registerOklchInputPair(oklchInputs.l, oklchInputs.lRange);
+registerOklchInputPair(oklchInputs.c, oklchInputs.cRange);
+registerOklchInputPair(oklchInputs.h, oklchInputs.hRange);
 
 const buttonProps = {
 	classList: "btn clean", 
@@ -174,8 +265,6 @@ colorPicker.on("input:start", () => {
 registerHoverOnColorSpans()
 
 //other colors
-document.getElementById("show-color-table").onclick = generateColorTable
-colorPicker.on(["color:init", "color:change"], (color) => hideColorTable(color))
 
 function registerHoverOnColorSpans() {
 	let timeout;
@@ -230,7 +319,6 @@ function registerColorPickerUpdater(idArr, keyArr, channel) {
 		input.onchange = (e) => {
 			//console.log(e.target, e.target.value, keyArr[i])
 			colorPicker.color.setChannel(channel, keyArr[i], e.target.value)
-			generateColorTable()
 		}
 		input.onwheel = (e) => {
 			const value = Number(e.target.value)
@@ -286,7 +374,6 @@ function handleResult(result) {
 	navigator.clipboard.writeText(result.sRGBHex);
 
 	colorPicker.color.set(result.sRGBHex)
-	generateColorTable()
 }
 
 async function handlePaste() {

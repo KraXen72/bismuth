@@ -6,6 +6,12 @@
     </head>
     <body>
         <!-- all svgs are from material icons and modified to 18px and fill of #a3a5aa -->
+        <div id="tab-bar">
+          <button class="tab-btn active" data-tab="picker">Picker</button>
+          <button class="tab-btn" data-tab="table">Table</button>
+          <button class="tab-btn" data-tab="oklch">OKLCH</button>
+        </div>
+        <div id="tab-picker" class="tab-panel active">
         <div id="picker"></div>
         <div id="values">
 			<span class="span-hex valspan">
@@ -48,10 +54,9 @@
 				<span id="display"></span>
 			</div>
 		</div>
-		<div id="generate-wrapper">
-			<button class="clean code" id="show-color-table">Generate color table</button>
-		</div>
-		<div id="color-table" class="hide">
+        </div>
+        <div id="tab-table" class="tab-panel hide">
+		<div id="color-table">
 			<span id="analog-t">Analogous:</span>
 			<span class="mini-display checkerboard-bg" id="analog">
 				<span class="c1" title="Click to copy"></span>
@@ -80,6 +85,28 @@
 				<span id="hover-tooltip-copymsg"></span>
 			</div>
 		</div>
+        </div>
+        <div id="tab-oklch" class="tab-panel hide">
+          <div id="oklch-preview"></div>
+          <div class="oklch-row">
+            <input type="number" id="oklch-l" class="code oklch-num" min="0" max="1" step="0.001">
+            <div class="oklch-slider-wrap" id="oklch-l-wrap">
+              <input type="range" id="oklch-l-range" min="0" max="1" step="0.001">
+            </div>
+          </div>
+          <div class="oklch-row">
+            <input type="number" id="oklch-c" class="code oklch-num" min="0" max="0.4" step="0.001">
+            <div class="oklch-slider-wrap" id="oklch-c-wrap">
+              <input type="range" id="oklch-c-range" min="0" max="0.4" step="0.001">
+            </div>
+          </div>
+          <div class="oklch-row">
+            <input type="number" id="oklch-h" class="code oklch-num" min="0" max="360" step="0.1">
+            <div class="oklch-slider-wrap" id="oklch-h-wrap">
+              <input type="range" id="oklch-h-range" min="0" max="360" step="0.1">
+            </div>
+          </div>
+        </div>
 
 		<div id="dropper-icon" hidden>
 			<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px" fill="#a3a5aa"><path d="M0 0h24v24H0z" fill="none"/><path d="M20.71 5.63l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-3.12 3.12-1.93-1.91-1.41 1.41 1.42 1.42L3 16.25V21h4.75l8.92-8.92 1.42 1.42 1.41-1.41-1.92-1.92 3.12-3.12c.4-.4.4-1.03.01-1.42zM6.92 19L5 17.08l8.06-8.06 1.92 1.92L6.92 19z"/></svg>

@@ -40,8 +40,6 @@ html,
 .valspan .val-label,
 #color-table,
 #values,
-#generate-wrapper,
-#generate-wrapper button.clean,
 input.code {
 	font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
 	font-weight: normal;
@@ -57,7 +55,7 @@ body {
 	background: #171f30;
 	line-height: 150%;
 	font-size: 16px;
-	padding: 0;
+	padding: 8px;
 }
 
 /* picker */
@@ -209,14 +207,6 @@ input.code#c_hex {
 	width: max-content;
 }
 
-#generate-wrapper {
-	margin-top: 16px;
-}
-#generate-wrapper button.clean {
-	font-size: .9rem;
-	height: var(--slider-w);
-}
-
 /* color-table */
 #color-table {
 	display: grid;
@@ -335,3 +325,77 @@ input.code#c_hex {
 	margin-block-start: 16px;
 	margin-block-end: 16px;
 } */
+
+/* Tab bar */
+#tab-bar {
+  display: flex;
+  background-color: var(--clean-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 50px;
+  padding: 3px;
+  margin-bottom: 10px;
+  gap: 3px;
+}
+
+.tab-btn {
+  flex: 1;
+  font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+  font-size: 0.85rem;
+  padding: 2px 6px;
+  border: 2px solid transparent;
+  border-radius: calc(50px - 3px);
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+  text-align: center;
+}
+
+.tab-btn.active {
+  background-color: #393a3b;
+  border-color: var(--border-color);
+}
+
+.tab-btn:hover:not(.active) {
+  background-color: #2e2e2e;
+}
+
+/* Tab panels */
+.tab-panel { display: block; }
+.tab-panel.hide { display: none !important; }
+
+/* OKLCH tab */
+#oklch-preview {
+  width: 100%;
+  height: 40px;
+  border-radius: 5px;
+  border: 2px solid var(--border-color);
+  margin-bottom: 10px;
+}
+
+.oklch-row {
+  display: grid;
+  grid-template-columns: min-content 1fr;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.oklch-num {
+  width: 62px;
+}
+
+.oklch-slider-wrap {
+  border-radius: 5px;
+  border: 2px solid var(--border-color);
+  background: linear-gradient(to right, #000, #fff); /* placeholder; JS will override */
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+}
+
+.oklch-slider-wrap input[type="range"] {
+  width: 100%;
+  background: transparent;
+  accent-color: #fff;
+}
