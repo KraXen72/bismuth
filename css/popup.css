@@ -399,12 +399,16 @@ input.code#c_hex {
 }
 
 /* OKLCH tab */
-#oklch-preview {
+#oklch-preview-wrapper {
 	width: 100%;
 	height: 40px;
 	border-radius: 5px;
 	border: 2px solid var(--border-color);
 	margin-bottom: 10px;
+}
+#oklch-preview {
+	width: 100%;
+	height: 100%;
 }
 
 .oklch-row {
@@ -457,7 +461,6 @@ input.code#c_hex {
 	padding: 0px;
 	width: 100%;
 	background: transparent;
-	accent-color: #ffffff;
 	transition: opacity 0.1s;
 	height: 100%;
 	border: 1px solid red;
