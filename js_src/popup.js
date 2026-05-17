@@ -254,18 +254,18 @@ function wireOklchChannel(channel, numId, rangeId) {
 	function oklchChannelUpdateClamped(event, newRawVal) {
 		const target = eventTarget(event)
 		const newClampedVal = clampNumber(newRawVal, getAttrAsNumber(target, "min"), getAttrAsNumber(target, "max"));
-		console.log(newRawVal, newClampedVal)
+		// console.log(newRawVal, newClampedVal)
 		oklchChannelUpdate(newClampedVal);
 	}
 
-	numEl.addEventListener('change', e => oklchChannelUpdateClamped(e, eventTarget(event)?.value));
+	numEl.addEventListener('change', e => oklchChannelUpdateClamped(e, eventTarget(e)?.value));
 	numEl.addEventListener('wheel', e => {
 		e.preventDefault();
 		const step = channel === 'h' ? 1 : channel === 'a' ? 0.01 : 0.005;
 		const newRawVal = oklchState[channel] + step * (e.deltaY > 0 ? -1 : 1);
 		oklchChannelUpdateClamped(e, newRawVal)
 	});
-	rangeEl.addEventListener('input', e => oklchChannelUpdateClamped(e, eventTarget(event)?.value));
+	rangeEl.addEventListener('input', e => oklchChannelUpdateClamped(e, eventTarget(e)?.value));
 }
 
 wireOklchChannel('l', 'oklch-l', 'oklch-l-range');
@@ -306,6 +306,7 @@ function applyPastedColor(raw) {
 	switchTab('picker');
 }
 
+// TODO migrate to clipboard API & grant myself perms in the chrome permissions (manifest.json i think)
 async function handlePaste() {
 	const input = document.getElementById("c_hex")
 	const prevValue = input.value
@@ -432,7 +433,8 @@ function registerColorPickerUpdater(idArr, channelArr, channel) {
 			if (idArr[i].endsWith('_a')) step = e.ctrlKey ? 0.10 : e.shiftKey ? 0.01 : 0.05;
 			if (e.ctrlKey) e.preventDefault();
 			
-			clampedSetChannel(precisionRound(channel, channelArr[i], Number(e.target.value) + step * dir), event, )
+			const newVal = precisionRound(Number(e.target.value) + step * dir, 2);
+			clampedSetChannel(channel, channelArr[i], newVal, e);
 		};
 	}
 }

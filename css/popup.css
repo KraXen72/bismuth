@@ -439,13 +439,6 @@ input.code#c_hex {
 	box-sizing: border-box;
 }
 
-/* "chroma" is the longest label — em width keeps all labels the same */
-/* .oklch-label {
-	font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
-	font-size: 1rem;
-	line-height: 1.75;
-	padding: 0.1rem 0.2rem;
-} */
 .oklch-join {
 	display: flex;
 }
