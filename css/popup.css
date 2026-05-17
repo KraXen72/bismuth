@@ -238,6 +238,7 @@ input.code {
 	box-sizing: border-box;
 	width: 100%;
 	height: min-content;
+	min-height: 28px;
 }
 input.code#c_hex {
 	flex-grow: 1;
@@ -431,7 +432,7 @@ input.code#c_hex {
 
 .oklch-num {
 	grid-area: input;
-	min-width: 38px;
+	min-width: 58px;
 	width: 62px;
 	-moz-appearance: textfield;
 }

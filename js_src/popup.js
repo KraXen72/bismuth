@@ -10,9 +10,13 @@ const componentOpts = {
 	width: iroSize,
 }
 
+// helpers
 function randomNumberBetween(min, max) {
 	return Math.floor(Math.random() * (max - min + 1) + min);
 }
+
+const clampNumber = (num, a, b) =>
+  Math.max(Math.min(num, Math.max(a, b)), Math.min(a, b));
 
 /**
  * Math.round but behaves correctly when rounding floating point numbers
@@ -24,6 +28,42 @@ function precisionRound(number, precision = 2) {
 	const factor = 10 ** precision;
 	return Math.round(number * factor) / factor;
 }
+
+/**
+ * get an attribute off an element parsed as a value
+ * @param {HTMLInputElement} elem
+ * @param {keyof HTMLInputElement['attributes']} attr
+ */
+function getAttrAsNumber(elem, attr) {
+	const raw = elem.getAttribute(attr)
+	if (raw == null) {
+		const elemErr = elem == null ? "[null]" : (elem.nodeName + " " + elem.classList + " " + elem.id)
+		throw new Error(`can't get attribute ${String(attr)} off elem ${elemErr}`);
+	}
+	const parsed = Number(raw);
+	if (Number.isNaN(parsed)) {
+		throw new Error(`can't convert attribute ${String(attr)} value: ${raw} into a number!`);
+	}
+	return parsed;
+}
+
+/** 
+ * get the event's target. optionally ensure it has a value
+ * @param {Event} event 
+ */
+function eventTarget(event, shouldHaveValue = true) {
+	const target = event?.currentTarget || event?.target;
+	if (target == null) {
+		console.error(event);
+		throw new Error(`can't get even target!`);
+	}
+	if (shouldHaveValue && !("value" in target && target?.value != null)) {
+		console.error(`target doesn't have a value!`, event, target);
+		throw new Error(`target doesn't have a value!`);
+	}
+	return target;
+}
+// ---
 
 function alphaAwareCopyCol(type) {
 	const c = colorPicker.color;
@@ -51,7 +91,7 @@ function RGBAToHexA(rgba, forceRemoveAlpha = false) {
 		.join('');
 }
 
-// ---- Tab state ----
+// Tab state 
 let activeTab = 'picker';
 
 function switchTab(newTab) {
@@ -97,6 +137,7 @@ const eyeDropperSupport = 'EyeDropper' in window;
 let eyeDropper;
 if (eyeDropperSupport) eyeDropper = new window.EyeDropper();
 
+/** @type {import("@jaames/iro").default.ColorPicker} */
 const colorPicker = new iro.ColorPicker('#picker', {
 	width: 300,
 	display: 'grid',
@@ -193,7 +234,7 @@ function wireOklchChannel(channel, numId, rangeId) {
 	const numEl = document.getElementById(numId);
 	const rangeEl = document.getElementById(rangeId);
 
-	function update(val) {
+	function oklchChannelUpdate(val) {
 		const parsed = parseFloat(val);
 		if (isNaN(parsed)) return;
 		oklchState = { ...oklchState, [channel]: parsed };
@@ -203,13 +244,21 @@ function wireOklchChannel(channel, numId, rangeId) {
 		renderOklchSliderBgs();
 	}
 
-	numEl.addEventListener('change', e => update(e.target.value));
+	function oklchChannelUpdateClamped(event, newRawVal) {
+		const target = eventTarget(event)
+		const newClampedVal = clampNumber(newRawVal, getAttrAsNumber(target, "min"), getAttrAsNumber(target, "max"));
+		console.log(newRawVal, newClampedVal)
+		oklchChannelUpdate(newClampedVal);
+	}
+
+	numEl.addEventListener('change', e => oklchChannelUpdateClamped(e, eventTarget(event)?.value));
 	numEl.addEventListener('wheel', e => {
 		e.preventDefault();
 		const step = channel === 'h' ? 1 : channel === 'a' ? 0.01 : 0.005;
-		update(oklchState[channel] + step * (e.deltaY > 0 ? -1 : 1));
+		const newRawVal = oklchState[channel] + step * (e.deltaY > 0 ? -1 : 1);
+		oklchChannelUpdateClamped(e, newRawVal)
 	});
-	rangeEl.addEventListener('input', e => update(e.target.value));
+	rangeEl.addEventListener('input', e => oklchChannelUpdateClamped(e, eventTarget(event)?.value));
 }
 
 wireOklchChannel('l', 'oklch-l', 'oklch-l-range');
@@ -348,18 +397,34 @@ function updateColorTableTooltip(colorOrFalse) {
 	}
 }
 
-function registerColorPickerUpdater(idArr, keyArr, channel) {
+function registerColorPickerUpdater(idArr, channelArr, channel) {
 	const inputs = idArr.map(id => document.getElementById(id));
+
+	/**
+	 * @param {'hsv' | 'hsl' | 'rgb'} format
+	 * @param {string} channel e.g. 'h' or 's'
+	 * @param {number} value
+	 * @param {Event} event event from which to derive target -> data-min/max attrs for clamping
+	 */
+	function clampedSetChannel(format, channel, value, event) {
+		const target = eventTarget(event);
+		const min = getAttrAsNumber(target, "data-min");
+		const max = getAttrAsNumber(target, "data-max");
+		const clamped = clampNumber(value, min, max);
+		colorPicker.color.setChannel(format, channel, clamped);
+	}
+
 	for (let i = 0; i < inputs.length; i++) {
-		inputs[i].onchange = e =>
-			colorPicker.color.setChannel(channel, keyArr[i], e.target.value);
+		inputs[i].onchange = e => { 
+			clampedSetChannel(channel, channelArr[i], eventTarget(e).value, e) 
+		};
 		inputs[i].onwheel = e => {
 			const dir = e.deltaY > 0 ? -1 : 1;
-			let inc = e.ctrlKey ? 10 : e.shiftKey ? 5 : 1;
-			if (idArr[i].endsWith('_a')) inc = e.ctrlKey ? 0.10 : e.shiftKey ? 0.01 : 0.05;
+			let step = e.ctrlKey ? 10 : e.shiftKey ? 5 : 1;
+			if (idArr[i].endsWith('_a')) step = e.ctrlKey ? 0.10 : e.shiftKey ? 0.01 : 0.05;
 			if (e.ctrlKey) e.preventDefault();
-			colorPicker.color.setChannel(channel, keyArr[i],
-				precisionRound(Number(e.target.value) + inc * dir));
+			
+			clampedSetChannel(precisionRound(channel, channelArr[i], Number(e.target.value) + step * dir), event, )
 		};
 	}
 }
