@@ -109,34 +109,54 @@
     <div id="tab-oklch" class="tab-panel hide">
         <div id="oklch-preview-wrapper" class="checkerboard-bg">
             <div id="oklch-preview"></div>
+            <button class="copy clean btn" id="copy_oklch" title="copy oklch value">
+                <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="24px" fill="#a3a5aa">
+                    <path d="M0 0h24v24H0z" fill="none" />
+                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
+                </svg>
+            </button>
         </div>
         <div class="oklch-row">
-            <span class="oklch-label">lightness</span>
-            <input type="number" id="oklch-l" class="code oklch-num" min="0" max="1" step="0.001">
+            <label class="oklch-label" title="Lightness">L</label>
             <div class="oklch-slider-wrap" id="oklch-l-wrap">
                 <input type="range" id="oklch-l-range" min="0" max="1" step="0.001">
             </div>
         </div>
         <div class="oklch-row">
-            <span class="oklch-label">chroma</span>
-            <input type="number" id="oklch-c" class="code oklch-num" min="0" max="0.4" step="0.001">
+            <label class="oklch-label" title="Chroma">C</label>
             <div class="oklch-slider-wrap" id="oklch-c-wrap">
                 <input type="range" id="oklch-c-range" min="0" max="0.4" step="0.001">
             </div>
         </div>
         <div class="oklch-row">
-            <span class="oklch-label">hue</span>
-            <input type="number" id="oklch-h" class="code oklch-num" min="0" max="360" step="0.1">
+            <label class="oklch-label" title="Hue">H</label>
             <div class="oklch-slider-wrap" id="oklch-h-wrap">
                 <input type="range" id="oklch-h-range" min="0" max="360" step="0.1">
             </div>
         </div>
         <div class="oklch-row">
-            <span class="oklch-label">alpha</span>
-            <input type="number" id="oklch-a" class="code oklch-num" min="0" max="1" step="0.01">
+            <label class="oklch-label" title="Alpha">A</label>
             <div class="oklch-slider-wrap" id="oklch-a-wrap">
                 <input type="range" id="oklch-a-range" min="0" max="1" step="0.01">
             </div>
+        </div>
+        <div class="valspan oklch-valspan">
+            <span class="oklch-join">
+                <label title="Lightness">L</label>
+                <input type="number" id="oklch-l" class="code oklch-num" min="0" max="1" step="0.001">
+            </span>
+            <span class="oklch-join">
+                <label title="Chroma">C</label>
+                <input type="number" id="oklch-c" class="code oklch-num" min="0" max="0.4" step="0.001">
+            </span>
+            <span class="oklch-join">
+                <label title="Hue">H</label>
+                <input type="number" id="oklch-h" class="code oklch-num" min="0" max="360" step="0.1">
+            </span>
+            <span class="oklch-join">
+                <label title="Alpha">A</label>
+                <input type="number" id="oklch-a" class="code oklch-num" min="0" max="1" step="0.01">
+            </span>
         </div>
     </div>
 

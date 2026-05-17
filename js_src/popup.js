@@ -66,18 +66,25 @@ function eventTarget(event, shouldHaveValue = true) {
 // ---
 
 function alphaAwareCopyCol(type) {
-	const c = colorPicker.color;
-	const a = c.alpha < 1;
-	let toCopy = '';
-	switch (type) {
-		case 'hex': toCopy = a ? c.hex8String : c.hexString; break;
-		case 'rgb': toCopy = a ? c.rgbaString : c.rgbString; break;
-		case 'hsl': toCopy = a ? c.hslaString : c.hslString; break;
-		default: throw new Error(`Unknown type ${type}`);
-	}
-	navigator.clipboard.writeText(toCopy);
-	document.getElementById('hover-tooltip-copymsg').innerHTML =
-		`Copied ${toCopy.length > 7 ? `${toCopy.slice(0, 6)}&#8230;` : toCopy} !`;
+    const c = colorPicker.color;
+    const a = c.alpha < 1;
+    let toCopy = '';
+    switch (type) {
+        case 'hex': toCopy = a ? c.hex8String : c.hexString; break;
+        case 'rgb': toCopy = a ? c.rgbaString : c.rgbString; break;
+        case 'hsl': toCopy = a ? c.hslaString : c.hslString; break;
+        case 'oklch': {
+            const { l, c: ch, h, a: alpha } = oklchState;
+            toCopy = alpha < 1
+                ? `oklch(${l.toFixed(3)} ${ch.toFixed(3)} ${h.toFixed(1)} / ${alpha.toFixed(2)})`
+                : `oklch(${l.toFixed(3)} ${ch.toFixed(3)} ${h.toFixed(1)})`;
+            break;
+        }
+        default: throw new Error(`Unknown type ${type}`);
+    }
+    navigator.clipboard.writeText(toCopy);
+    document.getElementById('hover-tooltip-copymsg').innerHTML =
+        `Copied ${toCopy.length > 7 ? `${toCopy.slice(0, 6)}&#8230;` : toCopy} !`;
 }
 
 function RGBAToHexA(rgba, forceRemoveAlpha = false) {
@@ -338,6 +345,7 @@ document.querySelector('#picker .IroColorPicker').appendChild(
 document.getElementById('copy_hex').onclick = () => alphaAwareCopyCol('hex');
 document.getElementById('copy_rgb').onclick = () => alphaAwareCopyCol('rgb');
 document.getElementById('copy_hsl').onclick = () => alphaAwareCopyCol('hsl');
+document.getElementById('copy_oklch').onclick = () => alphaAwareCopyCol('oklch');
 
 const display = document.getElementById('display');
 const inpHex = document.getElementById('c_hex');
