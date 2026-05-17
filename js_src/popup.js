@@ -237,12 +237,14 @@ function switchTab(newTab) {
     document.getElementById(`tab-${prev}`).classList.add('hide');
     document.getElementById(`tab-${newTab}`).classList.remove('hide');
     if (newTab === 'table') generateColorTable();
-    if (newTab === 'oklch') syncPickerToOklch();
     if (newTab === 'picker' && prev === 'oklch') syncOklchToPicker();
 }
 
 document.querySelectorAll('.tab-btn').forEach(btn =>
-    btn.addEventListener('click', () => switchTab(btn.dataset.tab))
+    btn.addEventListener('click', () => {
+        if (btn.dataset.tab === 'oklch') syncPickerToOklch();
+        switchTab(btn.dataset.tab);
+    })
 );
 
 // section: colour table tab
@@ -368,10 +370,12 @@ function applyPastedColor(raw) {
     const trimmed = raw.trim();
     if (!trimmed) return;
     const parsed = parse(trimmed);
+	console.log('applyPastedColor', trimmed, parsed);
     if (!parsed) return;
 
     if (parsed.mode === 'oklch') {
         oklchState = { l: parsed.l ?? 0, c: parsed.c ?? 0, h: parsed.h ?? 0, a: parsed.alpha ?? 1 };
+		syncOklchToPicker();
         switchTab('oklch');
         renderOklchInputs();
         renderOklchPreview();
@@ -382,6 +386,7 @@ function applyPastedColor(raw) {
     if (parsed.mode === 'oklab') {
         const asOklch = toOklch(parsed);
         oklchState = { l: asOklch.l ?? 0, c: asOklch.c ?? 0, h: asOklch.h ?? 0, a: parsed.alpha ?? 1 };
+		syncOklchToPicker();
         switchTab('oklch');
         renderOklchInputs();
         renderOklchPreview();
@@ -397,30 +402,13 @@ function applyPastedColor(raw) {
     switchTab('picker');
 }
 
-async function handlePaste(isAutoOnOpen = false) {
-    if (isAutoOnOpen) {
-        // auto-paste on open: use clipboard API, only apply if valid color
-        try {
-            const text = await navigator.clipboard.readText();
-            if (text) applyPastedColor(text);
-        } catch {
-            // clipboard permission denied or empty — silently do nothing
-        }
-        return;
+async function handlePaste() {
+    try {
+        const text = await navigator.clipboard.readText();
+        if (text) applyPastedColor(text);
+    } catch {
+        // clipboard permission denied or empty — silently do nothing
     }
-
-    // manual paste button: original execCommand flow
-    const input = document.getElementById('c_hex');
-    const prevValue = input.value;
-    input.value = '';
-    input.focus();
-    document.execCommand('paste');
-    const pasted = input.value;
-    input.blur();
-
-    if (!pasted) { input.value = prevValue; return; }
-    applyPastedColor(pasted);
-    if (activeTab !== 'picker') input.value = prevValue;
 }
 
 // section: wire up UI
@@ -463,10 +451,18 @@ colorPicker.on('input:start', () => {
     if ('activeElement' in document) document.activeElement.blur();
 });
 
-// color:init fires synchronously during construction above, before our
-// listener is registered — so prime OKLCH state explicitly here.
-syncPickerToOklch();
-
 registerHoverOnColorSpans();
-document.getElementById('paste_hex').addEventListener('click', () => handlePaste(false));
-document.addEventListener('DOMContentLoaded', () => handlePaste(true));
+document.getElementById('paste_hex').addEventListener('click', () => handlePaste());
+
+// chrome restricts clipboard.readText() (on extension popup load) until there's been a user gesture
+(function tryAutoApplyClipboard() {
+    const ta = document.createElement('textarea');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    document.execCommand('paste');
+    const pasted = ta.value;
+    document.body.removeChild(ta);
+    if (pasted) applyPastedColor(pasted);
+})();
