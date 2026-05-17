@@ -11,7 +11,7 @@ const componentOpts = {
 };
 
 // some pretty colors i picked from coolors.co + my own favs
-const startColors = [
+const START_COLORS = [
 	"#22223b", "#4a4e69", "#c9ada7", "#ff9e00", "#ffd04e",
 	"#723d46", "#84a98c", "#52796f", "#354f52", "#2f3e46",
 	"#f9dbbd", "#ffa5ab", "#da627d", "#a53860", "#a57562",
