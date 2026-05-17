@@ -496,6 +496,13 @@ label.oklch-label,
 	transition: opacity 0.1s;
 	height: 100%;
 	accent-color: #fff;
-	border: 1px solid red;
 	opacity: 50%;
 }
+
+/* #copy-feedback {
+    min-height: 1.5em;
+    text-align: right;
+    font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+    font-size: 0.85rem;
+    margin-top: var(--valgap);
+} */

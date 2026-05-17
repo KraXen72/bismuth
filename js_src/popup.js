@@ -55,7 +55,7 @@ function eventTarget(event, shouldHaveValue = true) {
 	const target = event?.currentTarget || event?.target;
 	if (target == null) {
 		console.error(event);
-		throw new Error(`can't get even target!`);
+		throw new Error(`can't get event target!`);
 	}
 	if (shouldHaveValue && !("value" in target && target?.value != null)) {
 		console.error(`target doesn't have a value!`, event, target);
@@ -164,12 +164,15 @@ const colorPicker = new iro.ColorPicker('#picker', {
 // OKLCH state
 let oklchState = { l: 0.5, c: 0.1, h: 200, a: 1 };
 
+// function oklchToHex(state) {
+// 	const rgb = toRgb({ mode: 'oklch', l: state.l, c: state.c, h: state.h });
+// 	const r = Math.max(0, Math.min(1, rgb?.r ?? 0));
+// 	const g = Math.max(0, Math.min(1, rgb?.g ?? 0));
+// 	const b = Math.max(0, Math.min(1, rgb?.b ?? 0));
+// 	return '#' + [r, g, b].map(v => Math.round(v * 255).toString(16).padStart(2, '0')).join('');
+// }
 function oklchToHex(state) {
-	const rgb = toRgb({ mode: 'oklch', l: state.l, c: state.c, h: state.h });
-	const r = Math.max(0, Math.min(1, rgb?.r ?? 0));
-	const g = Math.max(0, Math.min(1, rgb?.g ?? 0));
-	const b = Math.max(0, Math.min(1, rgb?.b ?? 0));
-	return '#' + [r, g, b].map(v => Math.round(v * 255).toString(16).padStart(2, '0')).join('');
+    return formatHex({ mode: 'oklch', l: state.l, c: state.c, h: state.h }) ?? '#000000';
 }
 
 function syncPickerToOklch() {
@@ -177,7 +180,7 @@ function syncPickerToOklch() {
 	oklchState = {
 		l: oklch?.l ?? 0,
 		c: oklch?.c ?? 0,
-		h: oklch?.h ?? 0,
+		h: oklch?.h ?? oklchState.h,
 		a: colorPicker.color.alpha,
 	};
 	renderOklchInputs();
@@ -258,12 +261,16 @@ function wireOklchChannel(channel, numId, rangeId) {
 		oklchChannelUpdate(newClampedVal);
 	}
 
-	numEl.addEventListener('change', e => oklchChannelUpdateClamped(e, eventTarget(e)?.value));
+	numEl.addEventListener('change', e => oklchChannelUpdateClamped(e, parseFloat(eventTarget(e)?.value)));
 	numEl.addEventListener('wheel', e => {
 		e.preventDefault();
-		const step = channel === 'h' ? 1 : channel === 'a' ? 0.01 : 0.005;
+		const baseStep = channel === 'h' ? 1 : channel === 'a' ? 0.01 : 0.005;
+		const multiplier = e.ctrlKey ? 10 : e.shiftKey ? 5 : 1;
+		const step = channel === 'a'
+			? (e.ctrlKey ? 0.10 : e.shiftKey ? 0.05 : 0.01)
+			: baseStep * multiplier;
 		const newRawVal = oklchState[channel] + step * (e.deltaY > 0 ? -1 : 1);
-		oklchChannelUpdateClamped(e, newRawVal)
+		oklchChannelUpdateClamped(e, newRawVal);
 	});
 	rangeEl.addEventListener('input', e => oklchChannelUpdateClamped(e, eventTarget(e)?.value));
 }
@@ -306,28 +313,30 @@ function applyPastedColor(raw) {
 	switchTab('picker');
 }
 
-// TODO migrate to clipboard API & grant myself perms in the chrome permissions (manifest.json i think)
-async function handlePaste() {
-	const input = document.getElementById("c_hex")
-	const prevValue = input.value
+async function handlePaste(isAutoOnOpen = false) {
+    if (isAutoOnOpen) {
+        // auto-paste on open: use clipboard API, only apply if valid color
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text) applyPastedColor(text);
+        } catch {
+            // clipboard permission denied or empty — silently do nothing
+        }
+        return;
+    }
 
-	input.value = ""
-	input.focus()
-	document.execCommand("paste")
-	const pasted = input.value
-	input.blur()
+    // manual paste button: original execCommand flow
+    const input = document.getElementById('c_hex');
+    const prevValue = input.value;
+    input.value = '';
+    input.focus();
+    document.execCommand('paste');
+    const pasted = input.value;
+    input.blur();
 
-	if (!pasted) {
-		input.value = prevValue;
-		return;
-	}
-
-	applyPastedColor(pasted);
-
-	// if we ended up on a non-picker tab, hex input isn't relevant — restore it
-	if (activeTab !== 'picker') {
-		input.value = prevValue;
-	}
+    if (!pasted) { input.value = prevValue; return; }
+    applyPastedColor(pasted);
+    if (activeTab !== 'picker') input.value = prevValue;
 }
 
 const buttonProps = { classList: 'btn clean', id: 'get-color-btn' };
@@ -374,18 +383,22 @@ colorPicker.on('input:start', () => {
 syncPickerToOklch();
 
 registerHoverOnColorSpans();
-document.getElementById('paste_hex').addEventListener('click', handlePaste);
-document.addEventListener('DOMContentLoaded', handlePaste);
+document.getElementById('paste_hex').addEventListener('click', () => handlePaste(false));
+document.addEventListener('DOMContentLoaded', () => handlePaste(true));
 
 function registerHoverOnColorSpans() {
 	let timeout;
 	const getBG = el => RGBAToHexA(window.getComputedStyle(el).backgroundColor);
 	const spanCopy = bg => {
 		const msg = document.getElementById('hover-tooltip-copymsg');
+		// delete msg.style.display;
 		clearTimeout(timeout);
 		navigator.clipboard.writeText(bg);
 		msg.textContent = `Copied ${bg} !`;
-		timeout = setTimeout(() => msg.textContent = '', 3100);
+		timeout = setTimeout(() => {
+			msg.textContent = ''
+			// msg.style.display = "none";
+		}, 3100);
 	};
 	document.querySelectorAll('#color-table .mini-display span[class^="c"]').forEach(span => {
 		span.addEventListener('mouseenter', () => updateColorTableTooltip(getBG(span)));
