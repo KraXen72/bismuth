@@ -410,10 +410,10 @@ input.code#c_hex {
 .oklch-row {
 	display: grid;
 	grid-template-rows: min-content min-content;
-	grid-template-columns: min-content 1fr;
+	grid-template-columns: min-content 1fr min-content;
 	grid-template-areas: 
-		"label label"
-		"input slider"
+		"label blank input"
+		"slider slider slider"
 	;
 
 	gap: var(--valgap);
@@ -426,7 +426,7 @@ input.code#c_hex {
 	grid-area: label;
 	font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
 	font-size: 1rem;
-	min-width: 4.5em;
+	min-width: 3em;
 	line-height: 1.75;
 }
 
@@ -445,15 +445,30 @@ input.code#c_hex {
 
 .oklch-slider-wrap {
 	grid-area: slider;
-	border-radius: 5px;
-	border: 2px solid var(--border-color);
+	border-radius: 50px;
+	border: 0px solid var(--border-color);
 	/* background set per-channel via inline style in JS */
 	padding: 2px 4px;
 	display: flex;
 	align-items: center;
 }
 .oklch-slider-wrap input[type="range"] {
+	box-sizing: border-box;
+	padding: 0px;
 	width: 100%;
 	background: transparent;
-	accent-color: #fff;
+	accent-color: #ffffff;
+	transition: opacity 0.1s;
+	height: 100%;
+	border: 1px solid red;
+	opacity: 50%;
 }
+/* .oklch-slider-wrap input[type="range"]:hover:active,
+.oklch-slider-wrap input[type="range"]:active {
+	opacity: 10%;
+} */
+
+/* .oklch-slider-wrap input[type="range"]::-webkit-slider-runnable-track,
+.oklch-slider-wrap input[type="range"]::-moz-range-track {
+	
+} */
